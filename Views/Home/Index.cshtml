@@ -1,0 +1,22 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="row">
+    @if (ViewData["Categories"] is List<ModelStore.Models.Category> categories)
+    {
+        foreach (var category in categories)
+        {
+            <div class="col-md-4">
+                <div class="card mb-3">
+                    <img src="data:image/png;base64,@Convert.ToBase64String(category.Photo)" class="card-img-top" alt="Category Image">
+                    <div class="card-body">
+                            <h5 class="card-title">
+                                <a href="@Url.Action("AllProducts", "Home", new { categoryId = category.Id })">@category.Name</a>
+                            </h5>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+</div>

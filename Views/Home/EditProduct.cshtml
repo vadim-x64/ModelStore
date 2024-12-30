@@ -1,0 +1,237 @@
+﻿@model List<ModelStore.Models.Product>
+@{
+    ViewData["Title"] = "Товари";
+    var categories = (List<ModelStore.Models.Category>)ViewData["Categories"];
+}
+
+<h2>Товари</h2>
+<div class="mb-4">
+    <label class="form-label">Фільтр за категорією:</label>
+    <select class="form-control" id="categoryFilter">
+        <option value="all">Всі категорії</option>
+        @foreach (var category in categories)
+        {
+            <option value="@category.Id">@category.Name</option>
+        }
+    </select>
+</div>
+
+@if (Model.Any())
+{
+    <div class="d-flex justify-content-end mb-3">
+        <button id="deleteSelectedBtn" class="btn btn-danger" disabled>
+            Видалити обрані продукти
+        </button>
+    </div>
+
+    <form id="productsForm" method="post" enctype="multipart/form-data" action="@Url.Action("EditProductDetails", "Home")">
+        <div class="row">
+            @foreach (var product in Model)
+            {
+                <div class="col-md-4 product-card" data-category="@product.CategoryId">
+                    <div class="card mb-3">
+                        <div class="position-absolute top-0 end-0 p-2">
+                            <input type="checkbox" class="form-check-input product-checkbox"
+                                   data-product-id="@product.Id">
+                        </div>
+                        <img src="data:image/png;base64,@Convert.ToBase64String(product.Photo)" class="card-img-top" alt="Product Image">
+                        <div class="card-body">
+                            <h5 class="card-title">@product.Name</h5>
+                            <div class="product-edit-group" data-product-id="@product.Id">
+                                <input type="hidden" name="updates[@product.Id].Id" value="@product.Id">
+                                <div class="mb-3">
+                                    <label for="photo-@product.Id" class="form-label">Фото</label>
+                                    <input type="file" class="form-control photo-input" id="photo-@product.Id"
+                                           name="updates[@product.Id].Photo">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="name-@product.Id" class="form-label">Назва</label>
+                                    <input type="text" class="form-control name-input" id="name-@product.Id"
+                                           name="updates[@product.Id].Name" value="@product.Name">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="price-@product.Id" class="form-label">Ціна</label>
+                                    <input type="num" class="form-control price-input" id="price-@product.Id"
+                                           name="updates[@product.Id].Price" value="@product.Price">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="description-@product.Id" class="form-label">Опис</label>
+                                    <textarea class="form-control description-input" id="description-@product.Id" name="updates[@product.Id].Description">@product.Description</textarea>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="category-@product.Id" class="form-label">Категорія</label>
+                                    <select class="form-control category-input" id="category-@product.Id"
+                                            name="updates[@product.Id].CategoryId">
+                                        @foreach (var category in categories)
+                                        {
+                                            <option value="@category.Id" selected="@(category.Id == product.CategoryId)">
+                                                @category.Name
+                                            </option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+        <button type="submit" id="saveAllBtn" class="btn btn-primary mb-4" disabled>
+            Зберегти всі зміни
+        </button>
+    </form>
+
+    <form id="deleteForm" method="post" action="@Url.Action("DeleteProduct", "Home")">
+    </form>
+}
+
+@section Scripts {
+    @if (Model.Any())
+    {
+        <script>
+            const productsForm = document.getElementById('productsForm');
+            const deleteForm = document.getElementById('deleteForm');
+            const saveAllBtn = document.getElementById('saveAllBtn');
+            const deleteSelectedBtn = document.getElementById('deleteSelectedBtn');
+            const productGroups = document.querySelectorAll('.product-edit-group');
+            const checkboxes = document.querySelectorAll('.product-checkbox');
+
+            let originalValues = new Map();
+
+            // Зберігаємо початкові значення для кожного товару
+            productGroups.forEach(group => {
+                const productId = group.dataset.productId;
+                const nameInput = group.querySelector('.name-input');
+                const priceInput = group.querySelector('.price-input');
+                const categoryInput = group.querySelector('.category-input');
+                const descriptionInput = group.querySelector('.description-input'); // Додано для опису
+
+                originalValues.set(productId, {
+                    name: nameInput.value,
+                    price: priceInput.value,
+                    categoryId: categoryInput.value,
+                    description: descriptionInput.value, // Зберігаємо початкове значення опису
+                    hasPhotoChange: false
+                });
+            });
+
+            // Функція перевірки змін
+            function checkForChanges() {
+                let hasChanges = false;
+
+                productGroups.forEach(group => {
+                    const productId = group.dataset.productId;
+                    const original = originalValues.get(productId);
+                    const nameInput = group.querySelector('.name-input');
+                    const photoInput = group.querySelector('.photo-input');
+                    const priceInput = group.querySelector('.price-input');
+                    const categoryInput = group.querySelector('.category-input');
+                    const descriptionInput = group.querySelector('.description-input'); // Оновлено для опису
+
+                    // Перевірка змін у всіх полях
+                    if (nameInput.value !== original.name ||
+                        priceInput.value !== original.price ||
+                        categoryInput.value !== original.categoryId ||
+                        descriptionInput.value !== original.description || // Перевірка опису
+                        photoInput.files.length > 0) {
+                        hasChanges = true;
+                    }
+                });
+
+                saveAllBtn.disabled = !hasChanges; // Якщо є зміни, активуємо кнопку
+            }
+
+            // Функція для оновлення кнопки видалення
+            function updateDeleteButton() {
+                const checkedBoxes = document.querySelectorAll('.product-checkbox:checked');
+                deleteSelectedBtn.disabled = checkedBoxes.length === 0;
+            }
+
+            // Обробка події на кнопці видалення вибраних товарів
+            deleteSelectedBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+
+                const checkedBoxes = document.querySelectorAll('.product-checkbox:checked');
+                if (checkedBoxes.length === 0) return;
+
+                if (confirm('Ви впевнені, що хочете видалити обрані продукти?')) {
+                    const form = document.getElementById('deleteForm');
+                    checkedBoxes.forEach(checkbox => {
+                        const input = document.createElement('input');
+                        input.type = 'hidden';
+                        input.name = 'productIds';
+                        input.value = checkbox.dataset.productId;
+                        form.appendChild(input);
+                    });
+                    form.submit();
+                }
+            });
+
+            // Додаємо обробники подій для змін у формах
+            productsForm.addEventListener('change', checkForChanges);
+            productsForm.addEventListener('input', checkForChanges);
+            checkboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', updateDeleteButton);
+            });
+
+            // Фільтрація товарів за категорією
+            document.getElementById('categoryFilter').addEventListener('change', function() {
+                const selectedCategory = this.value;
+                const products = document.querySelectorAll('.product-card');
+
+                products.forEach(product => {
+                    const productCategory = product.dataset.category;
+                    if (selectedCategory === 'all' || productCategory === selectedCategory) {
+                        product.style.display = 'block';
+                    } else {
+                        product.style.display = 'none';
+                    }
+                });
+            });
+        </script>
+    }
+}
+
+
+@if (categories != null && categories.Any())
+{
+    <div class="mt-5">
+        <h3>Додати новий товар</h3>
+        <form method="post" enctype="multipart/form-data" action="@Url.Action("AddProduct", "Home")">
+            <div class="mb-3">
+                <label class="form-label">Фото</label>
+                <input type="file" class="form-control" name="photo" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Назва</label>
+                <input type="text" class="form-control" name="name" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Ціна</label>
+                <input type="num" step="1" class="form-control" name="price" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Опис</label>
+                <textarea class="form-control description-input" name="description" required></textarea>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Категорія</label>
+                <select class="form-control" name="categoryId" required>
+                    @foreach (var category in categories)
+                    {
+                        <option value="@category.Id">@category.Name</option>
+                    }
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Додати</button>
+        </form>
+    </div>
+}
+else
+{
+    <div class="alert alert-warning mt-5">
+        Спочатку додайте хоча б одну категорію, щоб мати можливість додавати товари.
+    </div>
+}
+

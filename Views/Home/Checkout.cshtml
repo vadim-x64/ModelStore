@@ -1,0 +1,68 @@
+﻿@model OrderViewModel
+
+<h2>Checkout</h2>
+
+<h3>User Information</h3>
+<form method="post" action="@Url.Action("SubmitOrder", "Home")">
+    <div>
+        <label>First Name:</label>
+        <input type="text" name="FirstName" value="@Model.User.FirstName" required />
+    </div>
+    <div>
+        <label>Last Name:</label>
+        <input type="text" name="LastName" value="@Model.User.LastName" required />
+    </div>
+    <div>
+        <label>Phone:</label>
+        <input type="tel" name="Phone" value="@Model.User.Phone" required />
+    </div>
+    <div>
+        <label>Email:</label>
+        <input type="email" name="Email" value="@Model.User.Email" required />
+    </div>
+    <div>
+        <label>Address:</label>
+        <input type="text" name="Address" value="@Model.User.Address" required />
+    </div>
+
+    <h3>Cart</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Product</th>
+                <th>Price</th>
+                <th>Quantity</th>
+                <th>Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.CartItems)
+            {
+                <tr>
+                    <td>@item.Product.Name</td>
+                    <td>@item.Product.Price.ToString("C")</td>
+                    <td>@item.Quantity</td>
+                    <td>@(item.Product.Price * item.Quantity).ToString("C")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <h3>Payment & Delivery</h3>
+    <div>
+        <label>Payment Method:</label>
+        <select name="paymentMethod" required>
+            <option value="Card">Card</option>
+            <option value="Cash">Cash</option>
+        </select>
+    </div>
+    <div>
+        <label>Delivery Method:</label>
+        <select name="deliveryMethod" required>
+            <option value="Courier">Courier</option>
+            <option value="Pickup">Pickup</option>
+        </select>
+    </div>
+
+    <button type="submit">Place Order</button>
+</form>

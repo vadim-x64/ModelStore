@@ -1,0 +1,16 @@
+﻿@model ModelStore.Models.Login
+
+<form method="post">
+    <div>
+        <label for="Username">Username</label>
+        <input type="text" id="Username" name="Username" maxlength="25" required />
+    </div>
+    <div>
+        <label for="Password">Password</label>
+        <input type="password" id="Password" name="Password" maxlength="25" required />
+    </div>
+    <div>
+        <button type="submit">Login</button>
+        <a asp-controller="Home" asp-action="Register">Register</a>
+    </div>
+</form>
