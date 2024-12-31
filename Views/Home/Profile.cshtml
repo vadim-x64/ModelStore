@@ -128,9 +128,15 @@
                             @foreach (var item in order.OrderItems)
                             {
                                 <li class="mb-2">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <span>@item.Product.Name x @item.Quantity</span>
-                                        <span class="text-right">@((item.Product.Price * item.Quantity).ToString("C"))</span>
+                                    <div class="order-item">
+                                        <img src="data:image/png;base64,@Convert.ToBase64String(item.ProductPhoto)"
+                                             alt="@item.ProductName"
+                                             style="width:100px;height:100px;" />
+                                        <p>Назва товару: @item.ProductName</p>
+                                        <p>Опис: @item.ProductDescription</p>
+                                        <p>Ціна: @item.ProductPrice ₴</p>
+                                        <p>Кількість: @item.Quantity</p>
+                                        <p>Сума: @(item.ProductPrice * item.Quantity) ₴</p>
                                     </div>
                                 </li>
                             }

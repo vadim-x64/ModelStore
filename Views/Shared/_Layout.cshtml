@@ -34,9 +34,7 @@
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="@Url.Action("Cart", "Home")">
-                                 Cart
-                            </a>
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Cart">Cart</a>
                         </li>
                         <li class="nav-item">
                             @if (User.Identity != null && User.Identity.IsAuthenticated)
@@ -70,11 +68,6 @@
             @RenderBody()
         </main>
     </div>
-    @* <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2024 - ModelStore - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-        </div>
-    </footer> *@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>

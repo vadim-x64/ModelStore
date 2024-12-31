@@ -51,9 +51,6 @@ namespace ModelStore
                 name: "default",
                 pattern: "{controller=Home}/{action=Index}/{id?}");
 
-            app.MapControllerRoute(
-                name: "admin",
-                pattern: "{controller=Home}/{action=Admin}/{id?}");
 
             app.Run();
         }

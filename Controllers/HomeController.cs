@@ -80,6 +80,7 @@ namespace ModelStore.Controllers
             return View(customers);
         }
 
+        [Authorize(Roles = "1")]
         public async Task<IActionResult> Profile()
         {
             if (User.Identity.IsAuthenticated)
@@ -122,7 +123,7 @@ namespace ModelStore.Controllers
                 ViewData["Address"] = registration.Address;
                 ViewData["Username"] = user.Username;
                 ViewData["Password"] = user.Password;
-                return View();
+                return View(orders);
             }
             return RedirectToAction("Login");
         }
@@ -160,6 +161,7 @@ namespace ModelStore.Controllers
             return View();
         }
 
+        [Authorize(Roles = "1")]
         public async Task<IActionResult> Cart()
         {
             List<CartItem> cartItems;
@@ -167,13 +169,6 @@ namespace ModelStore.Controllers
             if (!User.Identity.IsAuthenticated)
             {
                 return RedirectToAction("Login", new { returnUrl = Url.Action("Cart") });
-                //var sessionCart = HttpContext.Session.GetString("Cart") ?? "[]";
-                //cartItems = JsonSerializer.Deserialize<List<CartItem>>(sessionCart);
-
-                //foreach (var item in cartItems)
-                //{
-                //    item.Product = await _db.Products.FindAsync(item.ProductId);
-                //}
             }
             else
             {
@@ -197,6 +192,7 @@ namespace ModelStore.Controllers
             return View(cartItems);
         }
 
+        [Authorize(Roles = "1")]
         public async Task<IActionResult> Checkout()
         {
             var user = _db.User.FirstOrDefault(u => u.Username == User.Identity.Name);
@@ -242,6 +238,7 @@ namespace ModelStore.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "1")]
         public async Task<IActionResult> SubmitOrder(string paymentMethod, string deliveryMethod, string address)
         {
             if (!User.Identity.IsAuthenticated)
@@ -271,6 +268,10 @@ namespace ModelStore.Controllers
                 OrderItems = cartItems.Select(ci => new OrderItem
                 {
                     ProductId = ci.ProductId,
+                    ProductName = ci.Product.Name, // Копіюємо назву продукту
+                    ProductPrice = ci.Product.Price, // Копіюємо ціну продукту
+                    ProductDescription = ci.Product.Description, // Копіюємо опис продукту
+                    ProductPhoto = ci.Product.Photo,
                     Quantity = ci.Quantity
                 }).ToList()
             };
@@ -305,6 +306,7 @@ namespace ModelStore.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "1")]
         public async Task<IActionResult> ConfirmOrderReceived(int orderId)
         {
             if (!User.Identity.IsAuthenticated)
@@ -331,6 +333,7 @@ namespace ModelStore.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "1")]
         public async Task<IActionResult> RequestOrderCancellation(int orderId)
         {
             var order = await _db.Orders.FirstOrDefaultAsync(o => o.Id == orderId);
@@ -357,20 +360,14 @@ namespace ModelStore.Controllers
             if (order == null || order.Status != OrderStatus.CancellationRequested)
                 return RedirectToAction("Customers", new { errorMessage = "Помилка скасування" });
 
-            // Видаляємо замовлення
             _db.Orders.Remove(order);
             await _db.SaveChangesAsync();
 
             return RedirectToAction("Customers", new { successMessage = "Замовлення успішно скасовано" });
         }
 
-
-
-
-
-
-
         [HttpPost]
+        [Authorize(Roles = "1")]
         public async Task<IActionResult> RemoveFromCart(int productId)
         {
             if (!User.Identity.IsAuthenticated)
@@ -397,6 +394,7 @@ namespace ModelStore.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "1")]
         public async Task<IActionResult> RemoveOneFromCart(int productId)
         {
             if (!User.Identity.IsAuthenticated)
@@ -444,6 +442,7 @@ namespace ModelStore.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "1")]
         public async Task<IActionResult> ClearCart()
         {
             if (!User.Identity.IsAuthenticated)
@@ -466,9 +465,13 @@ namespace ModelStore.Controllers
         }
 
         [HttpPost]
-        [Authorize]
         public async Task<IActionResult> AddComment(int productId, string content)
         {
+            if (!User.Identity.IsAuthenticated)
+            {
+                return RedirectToAction("Login", "Home");
+            }
+
             if (string.IsNullOrWhiteSpace(content))
             {
                 ModelState.AddModelError("", "Comment cannot be empty.");
@@ -495,9 +498,13 @@ namespace ModelStore.Controllers
         }
 
         [HttpPost]
-        [Authorize]
         public async Task<IActionResult> DeleteCommentFromProfile(int commentId)
         {
+            if (!User.Identity.IsAuthenticated)
+            {
+                return RedirectToAction("Login", "Home");
+            }
+
             var user = await _db.User.FirstOrDefaultAsync(u => u.Username == User.Identity.Name);
             if (user == null)
             {
@@ -512,6 +519,11 @@ namespace ModelStore.Controllers
 
             _db.Comments.Remove(comment);
             await _db.SaveChangesAsync();
+
+            if(User.IsInRole("2"))
+            {
+                return RedirectToAction("Admin");
+            }
             return RedirectToAction("Profile");
         }
 
@@ -802,6 +814,11 @@ namespace ModelStore.Controllers
 
         public async Task<IActionResult> Logout()
         {
+            if (!User.Identity.IsAuthenticated)
+            {
+                return RedirectToAction("Index", "Home");
+            }
+
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             return RedirectToAction("Index");
         }
@@ -899,8 +916,8 @@ namespace ModelStore.Controllers
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
 
-        [Authorize(Roles = "2")]
         [HttpPost]
+        [Authorize(Roles = "2")]
         public async Task<IActionResult> DeleteCustomer(int id)
         {
             var user = await _db.User.FindAsync(id);
@@ -965,8 +982,8 @@ namespace ModelStore.Controllers
             return RedirectToAction("Profile");
         }
 
-        [Authorize(Roles = "2")]
         [HttpPost]
+        [Authorize(Roles = "2")]
         public async Task<IActionResult> ChangeAdminProfilePicture(IFormFile profilePicture, bool? deletePicture)
         {
             var user = await _db.User.FirstOrDefaultAsync(u => u.Username == User.Identity.Name);
@@ -999,6 +1016,7 @@ namespace ModelStore.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "2")]
         public IActionResult Block(int id)
         {
             var customer = _db.User.Find(id);
@@ -1013,6 +1031,7 @@ namespace ModelStore.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "2")]
         public IActionResult Unblock(int id)
         {
             var customer = _db.User.Find(id);
@@ -1110,6 +1129,7 @@ namespace ModelStore.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "2")]
         public async Task<IActionResult> EditAdminProfile(Registration model, Login login, string Password, string ConfirmPassword)
         {
             if (!User.Identity.IsAuthenticated)
@@ -1192,7 +1212,6 @@ namespace ModelStore.Controllers
                     }
                 }
             }
-
             return View(products);
         }
 
@@ -1236,6 +1255,7 @@ namespace ModelStore.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "1")]
         public async Task<IActionResult> AddToCart(int productId, int quantity = 1)
         {
             if (!User.Identity.IsAuthenticated)
