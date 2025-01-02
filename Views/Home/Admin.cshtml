@@ -21,8 +21,6 @@
     </button>
 </form>
 
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
-
 <form method="post" action="@Url.Action("EditAdminProfile", "Home")" enctype="multipart/form-data">
     <div>
         <label>First Name:</label>
@@ -69,8 +67,6 @@
 <a href="@Url.Action("Customers", "Home")" class="btn btn-primary">Go to Customers</a>
 <a href="@Url.Action("Category", "Home")" class="btn btn-info">Переглянути категорії</a>
 <a href="@Url.Action("EditProduct", "Home")" class="btn btn-warning">Товари</a>
-
-
 
 <h3>Your Comments</h3>
 @if (ViewData["Comments"] != null)
@@ -157,3 +153,5 @@
         font-size: 1.5rem;
     }
 </style>
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">

@@ -29,22 +29,38 @@
     <table>
         <thead>
             <tr>
-                <th>Product</th>
+                <th>Photo</th>
+                <th>Name</th>
                 <th>Price</th>
                 <th>Quantity</th>
                 <th>Total</th>
             </tr>
         </thead>
         <tbody>
-            @foreach (var item in Model.CartItems)
-            {
-                <tr>
+
+                @foreach (var item in Model.CartItems)
+
+                {
+
+                    <tr>
+                        <td>
+                        <img src="data:image/jpeg;base64,@Convert.ToBase64String(item.Product.Photo)"
+                             alt="Product Photo"
+                             style="width: 100px; height: auto;" />
+                    </td>
                     <td>@item.Product.Name</td>
                     <td>@item.Product.Price.ToString("C")</td>
                     <td>@item.Quantity</td>
-                    <td>@(item.Product.Price * item.Quantity).ToString("C")</td>
+                    <td>@((item.Quantity * item.Product.Price).ToString("C"))</td>
+                    
+
+                </tr>
+                <tr>
+                    <td colspan="4" class="text-right"><strong>Cart Total:</strong></td>
+                    <td>@Model.CartItems.Sum(item => item.Quantity * item.Product.Price).ToString("C")</td>
                 </tr>
             }
+           
         </tbody>
     </table>
 

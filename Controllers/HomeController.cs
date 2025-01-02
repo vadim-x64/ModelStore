@@ -161,14 +161,18 @@ namespace ModelStore.Controllers
             return View();
         }
 
-        [Authorize(Roles = "1")]
         public async Task<IActionResult> Cart()
         {
             List<CartItem> cartItems;
 
+            if (User.IsInRole("2"))
+            {
+                return RedirectToAction("Index");
+            }
+
             if (!User.Identity.IsAuthenticated)
             {
-                return RedirectToAction("Login", new { returnUrl = Url.Action("Cart") });
+                return RedirectToAction("Login", new { returnUrl = Url.Action("Index") });
             }
             else
             {
@@ -181,14 +185,13 @@ namespace ModelStore.Controllers
                         ViewData["ProfilePicture"] = profile.ProfilePicture;
                     }
                 }
+
                 var userId = User.Identity.Name;
                 cartItems = await _db.CartItems
                     .Include(c => c.Product)
                     .Where(c => c.UserId == userId)
                     .ToListAsync();
-
             }
-
             return View(cartItems);
         }
 
@@ -239,13 +242,17 @@ namespace ModelStore.Controllers
 
         [HttpPost]
         [Authorize(Roles = "1")]
-        public async Task<IActionResult> SubmitOrder(string paymentMethod, string deliveryMethod, string address)
+        public async Task<IActionResult> SubmitOrder(string paymentMethod, string deliveryMethod, string address, string firstname, string lastname, string email, string phone)
         {
             if (!User.Identity.IsAuthenticated)
                 return RedirectToAction("Login");
 
             var user = await _db.User.FirstOrDefaultAsync(u => u.Username == User.Identity.Name);
             if (user == null)
+                return NotFound();
+
+            var registration = await _db.Users.FirstOrDefaultAsync(r => r.Id == user.Id);
+            if (registration == null)
                 return NotFound();
 
             var cartItems = await _db.CartItems
@@ -262,15 +269,19 @@ namespace ModelStore.Controllers
                 OrderDate = DateTime.Now,
                 PaymentMethod = paymentMethod,
                 DeliveryMethod = deliveryMethod,
-                Address = address,
+                FirstName = firstname ?? registration.FirstName, // Якщо ім'я не передано, використовуємо з Registration
+                LastName = lastname ?? registration.LastName,
+                Email = email ?? registration.Email,
+                Phone = phone ?? registration.Phone,
+                Address = address ?? registration.Address, // Якщо адреса не передана, використовуємо з Registration
                 Status = OrderStatus.Pending,
                 LastUpdated = DateTime.Now,
                 OrderItems = cartItems.Select(ci => new OrderItem
                 {
                     ProductId = ci.ProductId,
-                    ProductName = ci.Product.Name, // Копіюємо назву продукту
-                    ProductPrice = ci.Product.Price, // Копіюємо ціну продукту
-                    ProductDescription = ci.Product.Description, // Копіюємо опис продукту
+                    ProductName = ci.Product.Name,
+                    ProductPrice = ci.Product.Price,
+                    ProductDescription = ci.Product.Description,
                     ProductPhoto = ci.Product.Photo,
                     Quantity = ci.Quantity
                 }).ToList()
@@ -293,10 +304,10 @@ namespace ModelStore.Controllers
                 return NotFound();
 
             if (status == OrderStatus.ReceivedByCustomer)
-                return BadRequest("This status can only be set by the customer");
+                return BadRequest("This status can only be set by the customer.");
 
             if (order.Status == OrderStatus.ReceivedByCustomer)
-                return BadRequest("Cannot modify order status after customer confirmation");
+                return BadRequest("Cannot modify order status after customer confirmation.");
 
             order.Status = status;
             order.LastUpdated = DateTime.Now;
@@ -340,13 +351,13 @@ namespace ModelStore.Controllers
 
             if (order == null ||
                 (order.Status != OrderStatus.Pending && order.Status != OrderStatus.Accepted))
-                return RedirectToAction("Profile", new { errorMessage = "Скасування не дозволено" });
+                return RedirectToAction("Profile", new { errorMessage = "Скасування не дозволено." });
 
             order.Status = OrderStatus.CancellationRequested;
             order.LastUpdated = DateTime.Now;
             await _db.SaveChangesAsync();
 
-            return RedirectToAction("Profile", new { successMessage = "Запит на скасування відправлено" });
+            return RedirectToAction("Profile", new { successMessage = "Запит на скасування відправлено." });
         }
 
         [HttpPost]
@@ -358,12 +369,12 @@ namespace ModelStore.Controllers
                 .FirstOrDefaultAsync(o => o.Id == orderId);
 
             if (order == null || order.Status != OrderStatus.CancellationRequested)
-                return RedirectToAction("Customers", new { errorMessage = "Помилка скасування" });
+                return RedirectToAction("Customers", new { errorMessage = "Помилка скасування." });
 
             _db.Orders.Remove(order);
             await _db.SaveChangesAsync();
 
-            return RedirectToAction("Customers", new { successMessage = "Замовлення успішно скасовано" });
+            return RedirectToAction("Customers", new { successMessage = "Замовлення успішно скасовано." });
         }
 
         [HttpPost]
@@ -520,7 +531,7 @@ namespace ModelStore.Controllers
             _db.Comments.Remove(comment);
             await _db.SaveChangesAsync();
 
-            if(User.IsInRole("2"))
+            if (User.IsInRole("2"))
             {
                 return RedirectToAction("Admin");
             }
@@ -1102,6 +1113,14 @@ namespace ModelStore.Controllers
                     ModelState.AddModelError("Username", "This username is already taken");
                     return View(model);
                 }
+
+                // Update cart items with new username
+                var cartItems = await _db.CartItems.Where(c => c.UserId == user.Username).ToListAsync();
+                foreach (var item in cartItems)
+                {
+                    item.UserId = login.Username;
+                }
+
                 user.Username = login.Username;
                 credentialsChanged = true;
             }
@@ -1255,9 +1274,14 @@ namespace ModelStore.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "1")]
+
         public async Task<IActionResult> AddToCart(int productId, int quantity = 1)
         {
+            if (User.IsInRole("2)"))
+            {
+                return RedirectToAction("Index");
+            }
+
             if (!User.Identity.IsAuthenticated)
             {
                 var sessionCart = HttpContext.Session.GetString("Cart") ?? "[]";
@@ -1306,6 +1330,47 @@ namespace ModelStore.Controllers
             }
 
             return Redirect(Request.Headers["Referer"].ToString());
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> CheckUsernameAvailability(string username)
+        {
+            if (await _db.User.AnyAsync(u => u.Username == username))
+            {
+                return Json(new { isAvailable = false });
+            }
+            return Json(new { isAvailable = true });
+        }
+
+        [Authorize]
+        public async Task<IActionResult> OrderInfo(int orderId)
+        {
+            if (User.Identity.IsAuthenticated)
+            {
+                var user = _db.User.FirstOrDefault(u => u.Username == User.Identity.Name);
+                if (user != null)
+                {
+                    var profile = _db.Users.FirstOrDefault(r => r.Id == user.Id);
+                    if (profile != null)
+                    {
+                        ViewData["ProfilePicture"] = profile.ProfilePicture;
+                    }
+                }
+            }
+
+
+            var order = await _db.Orders
+            .Include(o => o.OrderItems)
+            .ThenInclude(oi => oi.Product)
+            .Include(o => o.User)
+            .FirstOrDefaultAsync(o => o.Id == orderId);
+
+            if (order == null)
+            {
+                return NotFound();
+            }
+
+            return View(order);
         }
     }
 }

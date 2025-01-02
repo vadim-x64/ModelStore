@@ -18,12 +18,17 @@
             <tbody>
                 @foreach (var item in Model)
                 {
+                    
                     <tr>
+                        
                         <td>
+                            <a href="@Url.Action("DetailItem", "Home", new { id = item.Product.Id })">
                             <img src="data:image/png;base64,@Convert.ToBase64String(item.Product.Photo)"
                                  style="max-width: 50px;" alt="Product Image">
                             @item.Product.Name
+                            </a>
                         </td>
+                        
                         <td>@item.Product.Price.ToString("C")</td>
                         <td>@item.Quantity</td>
                         <td>@((item.Product.Price * item.Quantity).ToString("C"))</td>
@@ -38,7 +43,9 @@
                                 Remove 1 item
                             </button>
                         </td>
+                        
                     </tr>
+                    
                 }
             </tbody>
             <tfoot>
@@ -59,9 +66,10 @@
         </button>
     </div>
 
+    
     <a href="@Url.Action("Checkout", "Home")" class="btn btn-success btn-lg">
-        <i class="fas fa-shopping-cart"></i> Оформити замовлення
-    </a>
+        <i class="fas fa-shopping-cart"></i> Proceed to Checkout
+    </a>     
 }
 else
 {

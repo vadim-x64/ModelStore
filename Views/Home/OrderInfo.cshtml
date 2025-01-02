@@ -1,0 +1,44 @@
+﻿@model ModelStore.Models.Order
+
+<h2>Order #@Model.Id Details</h2>
+
+<h3>Customer Information</h3>
+<p><strong>Name:</strong> @Model.FirstName @Model.LastName</p>
+<p><strong>Phone:</strong> @(string.IsNullOrEmpty(Model.Phone) ? Model.User.Phone : Model.Phone)</p>
+<p><strong>Email:</strong> @(string.IsNullOrEmpty(Model.Email) ? Model.User.Email : Model.Email)</p>
+<p><strong>Address:</strong> @(string.IsNullOrEmpty(Model.Address) ? Model.User.Address : Model.Address)</p>
+<p><strong>Payment Method:</strong> @Model.PaymentMethod</p>
+<p><strong>Delivery Method:</strong> @Model.DeliveryMethod</p>
+
+<h3>Order Items</h3>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Photo</th>
+            <th>Name</th>
+            <th>Price</th>
+            <th>Quantity</th>
+            <th>Total</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.OrderItems)
+        {
+            <tr>
+                <td>
+                    <img src="data:image/jpeg;base64,@Convert.ToBase64String(item.Product.Photo)" alt="Product Photo" width="50" />
+                </td>
+                <td>@item.Product.Name</td>
+                <td>@item.Product.Price.ToString("C")</td>
+                <td>@item.Quantity</td>
+                <td>@((item.Quantity * item.Product.Price).ToString("C"))</td>
+            </tr>
+        }
+    </tbody>
+    <tfoot>
+        <tr>
+            <td colspan="4" class="text-end"><strong>Total:</strong></td>
+            <td>@Model.OrderItems.Sum(i => i.Quantity * i.Product.Price).ToString("C")</td>
+        </tr>
+    </tfoot>
+</table>

@@ -50,8 +50,9 @@
     </div>
     <div>
         <label>Username:</label>
-        <input type="text" name="Username" value="@ViewData["Username"]" required />
+        <input id="username" type="text" name="Username" value="@ViewData["Username"]" required />
     </div>
+
     <div>
         <label>New Password:</label>
         <input type="password" name="Password" />
@@ -76,7 +77,9 @@
             @foreach (var order in orders.OrderByDescending(o => o.OrderDate))
             {
                 <div class="list-group-item" id="order-@order.Id">
-                    <h5>Order #@order.Id</h5>
+                    <a href="@Url.Action("OrderInfo", "Home", new { orderId = order.Id })">
+                        <h5>Order #@order.Id</h5>
+                    </a>
                     <p>
                         Status: <span class="badge @(order.Status switch
                         {
@@ -118,11 +121,11 @@
                     {
                         <p>Last Updated: @order.LastUpdated.Value.ToString("g")</p>
                     }
-                    <p>Payment Method: @order.PaymentMethod</p>
+                    @* <p>Payment Method: @order.PaymentMethod</p>
                     <p>Delivery Method: @order.DeliveryMethod</p>
-                    <p>Delivery Address: @order.Address</p>
+                    <p>Delivery Address: @order.Address</p> *@
                     
-                    <div class="mt-2">
+                    @* <div class="mt-2">
                         <h6>Order Items:</h6>
                         <ul class="list-unstyled">
                             @foreach (var item in order.OrderItems)
@@ -144,7 +147,7 @@
                         <div class="text-right">
                             <strong>Total: @order.OrderItems.Sum(item => item.Product.Price * item.Quantity).ToString("C")</strong>
                         </div>
-                    </div>
+                    </div> *@
                 </div>
             }
         </div>
@@ -216,6 +219,25 @@ else
             });
         });
     });
+
+    document.getElementById('username').addEventListener('blur', function () {
+        const username = this.value;
+
+        if (username.trim() === '') {
+            return;
+        }
+
+        fetch(`/Home/CheckUsernameAvailability?username=${encodeURIComponent(username)}`)
+            .then(response => response.json())
+            .then(data => {
+                if (!data.isAvailable) {
+                    alert('Таке ім\'я користувача вже зайняте');
+                }
+            })
+            .catch(() => {
+                alert('Помилка перевірки');
+            });
+    });
 </script>
 
 <style>
@@ -236,9 +258,9 @@ else
         cursor: pointer;
     }
 
-        .btn-trash:hover {
-            color: red;
-        }
+    .btn-trash:hover {
+        color: red;
+    }
 
     .trash-icon {
         font-size: 1.5rem;

@@ -113,10 +113,6 @@
                                     <div id="collapse@(order.Id)" class="collapse"
                                          data-parent="#ordersAccordion@(customer.Id)">
                                         <div class="card-body">
-                                            <p>Payment: @order.PaymentMethod</p>
-                                            <p>Delivery: @order.DeliveryMethod</p>
-                                            <p>Total: @order.Total.ToString("C")</p>
-
                                             @if (order.Status != OrderStatus.ReceivedByCustomer)
                                             {
                                                 <form asp-action="UpdateOrderStatus" method="post">
@@ -144,7 +140,6 @@
                                             {
                                                 <p>Status: <span class="badge badge-success">Received by customer</span></p>
                                             }
-
                                             @if (order.Status == OrderStatus.CancellationRequested)
                                             {
                                                 <form method="post" asp-action="ConfirmOrderCancellation">
