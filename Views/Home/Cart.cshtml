@@ -1,106 +1,81 @@
 ﻿@model List<ModelStore.Models.CartItem>
 
-<h2>Shopping Cart</h2>
+<link rel="stylesheet" href="~/css/cart.css" asp-append-version="true" />
+
+<h2 class="text-center mb-4">Shopping Cart</h2>
 
 @if (Model != null && Model.Any())
 {
-    <div class="table-responsive">
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Product</th>
-                    <th>Price</th>
-                    <th>Quantity</th>
-                    <th>Total</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var item in Model)
-                {
-                    
+    <div class="container">
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover">
+                <thead>
                     <tr>
-                        
-                        <td>
-                            <a href="@Url.Action("DetailItem", "Home", new { id = item.Product.Id })">
-                            <img src="data:image/png;base64,@Convert.ToBase64String(item.Product.Photo)"
-                                 style="max-width: 50px;" alt="Product Image">
-                            @item.Product.Name
-                            </a>
-                        </td>
-                        
-                        <td>@item.Product.Price.ToString("C")</td>
-                        <td>@item.Quantity</td>
-                        <td>@((item.Product.Price * item.Quantity).ToString("C"))</td>
-                        <td>
-                            <button class="btn btn-danger btn-sm"
-                                    onclick="removeFromCart(@item.ProductId)">
-                                Remove
-                            </button>
-                        </td>
-                        <td>
-                            <button class="btn btn-warning btn-sm" onclick="removeOneFromCart(@item.ProductId)">
-                                Remove 1 item
-                            </button>
-                        </td>
-                        
+                        <th>Product</th>
+                        <th>Price</th>
+                        <th>Quantity</th>
+                        <th>Total</th>
+                        <th>Delete All</th>
+                        <th>Delete 1 item</th>
                     </tr>
-                    
-                }
-            </tbody>
-            <tfoot>
-                <tr>
-                    <td colspan="3" class="text-right"><strong>Total:</strong></td>
-                    <td>
-                        @Model.Sum(i => i.Product.Price * i.Quantity).ToString("C")
-                    </td>
-                    <td></td>
-                </tr>
-            </tfoot>
-        </table>
+                </thead>
+                <tbody id="cartItems">
+                    @foreach (var item in Model)
+                    {
+                        <tr id="item-@item.ProductId">
+                            <td>
+                                <div class="product-info">
+                                    <a href="@Url.Action("DetailItem", "Home", new { id = item.Product.Id })">
+                                        <img src="data:image/png;base64,@Convert.ToBase64String(item.Product.Photo)" alt="Product Image" />
+                                        <p>@item.Product.Name</p>
+                                    </a>
+                                </div>
+                            </td>
+                            <td>@item.Product.Price.ToString("C")</td>
+                            <td>@item.Quantity</td>
+                            <td>@((item.Product.Price * item.Quantity).ToString("C"))</td>
+                            <td>
+                                <button class="btn btn-sm" onclick="removeFromCart(@item.ProductId)">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+                                        <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z" />
+                                        <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z" />
+                                    </svg>
+                                </button>
+                            </td>
+                            <td>
+                                <button class="btn btn-sm" onclick="removeOneFromCart(@item.ProductId)">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
+                                        <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z" />
+                                    </svg>
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="3" class="text-right"><strong>Total:</strong></td>
+                        <td>@Model.Sum(i => i.Product.Price * i.Quantity).ToString("C")</td>
+                        <td></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+        <div class="d-flex justify-content-between">
+            <button class="btn btn-danger" onclick="clearCart()">
+                Clear Cart
+            </button>
+            <a href="@Url.Action("Checkout", "Home")" class="btn btn-success btn-lg">
+                Checkout
+            </a>
+        </div>
     </div>
-
-    <div class="text-right">
-        <button class="btn btn-danger" onclick="clearCart()">
-            Видалити весь кошик
-        </button>
-    </div>
-
-    
-    <a href="@Url.Action("Checkout", "Home")" class="btn btn-success btn-lg">
-        <i class="fas fa-shopping-cart"></i> Proceed to Checkout
-    </a>     
 }
 else
 {
-    <p>Your cart is empty.</p>
+    <p class="text-center">Your cart is empty.</p>
 }
 
 @section Scripts {
-    <script>
-        function clearCart() {
-            if (confirm('Ви впевнені, що хочете видалити весь кошик?')) {
-                $.post('@Url.Action("ClearCart", "Home")')
-                    .done(function() {
-                        location.reload();
-                    });
-            }
-        }
-
-        function removeFromCart(productId) {
-            if (confirm('Are you sure you want to remove this item?')) {
-                $.post('@Url.Action("RemoveFromCart", "Home")', { productId: productId })
-                    .done(function() {
-                        location.reload();
-                    });
-            }
-        }
-
-        function removeOneFromCart(productId) {
-            $.post('@Url.Action("RemoveOneFromCart", "Home")', { productId: productId })
-                .done(function() {
-                    location.reload();
-                });
-        }
-    </script>
+    <script src="~/js/cart.js"></script>
 }

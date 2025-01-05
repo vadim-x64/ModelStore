@@ -2,65 +2,7 @@
     ViewData["Title"] = "Home Page";
 }
 
-<style>
-    .categories-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-        gap: 2rem;
-        padding: 2rem;
-        justify-items: center;
-    }
-
-    .category-card {
-        width: 100%;
-        max-width: 400px;
-        height: 100%;
-        transition: transform 0.2s;
-    }
-
-        .category-card:hover {
-            transform: translateY(-5px);
-        }
-
-    .image-container {
-        position: relative;
-        width: 100%;
-        padding-top: 56.25%; /* Співвідношення сторін 16:9 */
-        overflow: hidden;
-        border-radius: 8px 8px 0 0;
-    }
-
-    .category-image {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        object-fit: cover; /* Це забезпечить заповнення всього контейнера */
-    }
-
-    .category-body {
-        padding: 1rem;
-        background: white;
-        border-radius: 0 0 8px 8px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-
-    .category-title {
-        margin: 0;
-        text-align: center;
-    }
-
-    .category-link {
-        color: #333;
-        text-decoration: none;
-        font-weight: 500;
-    }
-
-        .category-link:hover {
-            color: #007bff;
-        }
-</style>
+<link rel="stylesheet" href="~/css/index.css" asp-append-version="true" />
 
 <div class="categories-grid">
     @if (ViewData["Categories"] is List<ModelStore.Models.Category> categories)
@@ -69,17 +11,25 @@
         {
             <div class="category-card">
                 <div class="image-container">
-                    <img src="data:image/png;base64,@Convert.ToBase64String(category.Photo)"
-                         class="category-image"
-                         alt="@category.Name">
+                    <img src="data:image/png;base64,@Convert.ToBase64String(category.Photo)" class="category-image" alt="@category.Name">
                 </div>
                 <div class="category-body">
                     <h5 class="category-title">
-                        <a href="@Url.Action("AllProducts", "Home", new { categoryId = category.Id })"
-                           class="category-link">@category.Name</a>
+                        <a href="@Url.Action("AllProducts", "Home", new { categoryId = category.Id })" class="category-link">@category.Name</a>
                     </h5>
                 </div>
             </div>
         }
     }
+</div>
+
+<div class="empty-section">
+    <div class="line-container">
+        <div class="line"></div>
+        <div class="gif-container">
+            <img src="~/images/content.gif" alt="Empty state" style="width: 100%; height: 100%;">
+        </div>
+        <div class="line"></div>
+    </div>
+    <p class="empty-text">Тут поки пусто</p>
 </div>

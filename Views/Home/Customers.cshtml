@@ -4,203 +4,309 @@
     ViewData["Title"] = "Customers";
 }
 
-<h2>Customers List</h2>
-
-<table class="table">
-    <thead>
-        <tr>
-            <th scope="col">Profile Picture</th>
-            <th scope="col">First Name</th>
-            <th scope="col">Last Name</th>
-            <th scope="col">Middle Name</th>
-            <th scope="col">BirthDate</th>
-            <th scope="col">Phone</th>
-            <th scope="col">Email</th>
-            <th scope="col">Address</th>
-            <th scope="col">Username</th>
-            <th scope="col">Comments</th>
-            <th scope="col">Actions</th>
-            <th scope="col">Status</th>
-            <th scope="col">Orders</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var customer in Model)
-        {
-            <tr>
-                <td>
-                    @if (customer.ProfilePicture != null)
-                    {
-                        <img src="data:image/png;base64,@Convert.ToBase64String(customer.ProfilePicture)" alt="Profile Picture" class="profile-pic" style="width: 50px; height: 50px; border-radius: 50%;" />
-                        <form asp-action="RemoveProfilePicture" method="post" class="mt-2">
-                            <input type="hidden" name="userId" value="@customer.Id" />
-                            <button type="submit" class="btn btn-danger btn-sm">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </form>
-                    }
-                    else
-                    {
-                        <p>No photo</p>
-                    }
-                </td>
-                <td>@customer.FirstName</td>
-                <td>@customer.LastName</td>
-                <td>@customer.MiddleName</td>
-                <td>@customer.BirthDate</td>
-                <td>@customer.Phone</td>
-                <td>@customer.Email</td>
-                <td>@customer.Address</td>
-                <td>@customer.Username</td>
-                <td>
-                    @if (customer.Comments != null && customer.Comments.Count > 0)
-                    {
-                        <ul>
-                            @foreach (var comment in customer.Comments)
+<div class="customers-container">
+    <h2>Customers List</h2>
+    <div class="table-container">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col" class="col-profile">Profile Picture</th>
+                    <th scope="col" class="col-name">First Name</th>
+                    <th scope="col" class="col-name">Last Name</th>
+                    <th scope="col" class="col-name">Middle Name</th>
+                    <th scope="col" class="col-date">BirthDate</th>
+                    <th scope="col" class="col-contact">Phone</th>
+                    <th scope="col" class="col-contact">Email</th>
+                    <th scope="col" class="col-address">Address</th>
+                    <th scope="col" class="col-username">Username</th>
+                    <th scope="col" class="col-comments">Comments</th>
+                    <th scope="col" class="col-actions">Actions</th>
+                    <th scope="col" class="col-status">Status</th>
+                    <th scope="col" class="col-orders">Orders</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var customer in Model)
+                {
+                    <tr>
+                        <td>
+                            @if (customer.ProfilePicture != null)
                             {
-                                <li>
-                                    <strong>
-                                        <a href="@Url.Action("DetailItem", "Home", new { id = comment.ProductId })">
-                                            @comment.ProductName
-                                        </a>:
-                                    </strong>
-                                    @comment.Content
-                                    <span class="text-muted">(@comment.DatePosted.ToString("g"))</span>
-                                </li>
+                                <img src="data:image/png;base64,@Convert.ToBase64String(customer.ProfilePicture)" alt="Profile Picture" class="profile-pic" style="width: 50px; height: 50px; border-radius: 50%;" />
+                                <form asp-action="RemoveProfilePicture" method="post" class="mt-2">
+                                    <input type="hidden" name="userId" value="@customer.Id" />
+                                    <button type="submit" class="btn btn-danger btn-sm">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
                             }
-                        </ul>
-                    }
-                    else
-                    {
-                        <p>No comments found.</p>
-                    }
-                </td>
-                <td>
-                    <button class="btn btn-danger" data-toggle="modal" data-target="#deleteModal" data-id="@customer.Id">Delete</button>
-                </td>
-                <td>
-                    @if (customer.IsBlocked)
-                    {
-                        <form asp-action="Unblock" method="post">
-                            <input type="hidden" name="id" value="@customer.Id" />
-                            <button type="submit" class="btn btn-success">Unblock</button>
-                        </form>
-                    }
-                    else
-                    {
-                        <form asp-action="Block" method="post">
-                            <input type="hidden" name="id" value="@customer.Id" />
-                            <button type="submit" class="btn btn-warning">Block</button>
-                        </form>
-                    }
-                </td>
-                <td>
-                    @if (customer.Orders != null && customer.Orders.Count > 0)
-                    {
-                        <div class="accordion" id="ordersAccordion@(customer.Id)">
-                            @foreach (var order in customer.Orders)
+                            else
                             {
-                                <div class="card">
-                                    <div class="card-header" id="heading@(order.Id)">
-                                        <h2 class="mb-0">
-                                            <button class="btn btn-link" type="button" data-toggle="collapse"
-                                                    data-target="#collapse@(order.Id)">
-                                                Order #@order.Id (@order.OrderDate.ToString("g")) - @order.Status
-                                            </button>
-                                        </h2>
-                                    </div>
-
-                                    <div id="collapse@(order.Id)" class="collapse"
-                                         data-parent="#ordersAccordion@(customer.Id)">
-                                        <div class="card-body">
-                                            @if (order.Status != OrderStatus.ReceivedByCustomer)
-                                            {
-                                                <form asp-action="UpdateOrderStatus" method="post">
-                                                    <input type="hidden" name="orderId" value="@order.Id" />
-                                                    <div class="form-group">
-                                                        <label>Status:</label>
-                                                        <select name="status" class="form-control">
-                                                            @foreach (OrderStatus status in Enum.GetValues(typeof(OrderStatus)))
-                                                            {
-                                                                if (status != OrderStatus.ReceivedByCustomer &&
-                                                                ((order.Status == OrderStatus.CancellationRequested) ||
-                                                                (status != OrderStatus.CancellationRequested)))
-                                                                {
-                                                                    <option value="@status" selected="@(order.Status == status)">
-                                                                        @status
-                                                                    </option>
-                                                                }
-                                                            }
-                                                        </select>
-                                                    </div>
-                                                    <button type="submit" class="btn btn-primary">Update Status</button>
-                                                </form>
-                                            }
-                                            else
-                                            {
-                                                <p>Status: <span class="badge badge-success">Received by customer</span></p>
-                                            }
-                                            @if (order.Status == OrderStatus.CancellationRequested)
-                                            {
-                                                <form method="post" asp-action="ConfirmOrderCancellation">
-                                                    <input type="hidden" name="orderId" value="@order.Id" />
-                                                    <button type="submit" class="btn btn-warning">
-                                                        Confirm Cancellation
+                                <p>No photo</p>
+                            }
+                        </td>
+                        <td>@customer.FirstName</td>
+                        <td>@customer.LastName</td>
+                        <td>@customer.MiddleName</td>
+                        <td>@customer.BirthDate</td>
+                        <td>@customer.Phone</td>
+                        <td>@customer.Email</td>
+                        <td>@customer.Address</td>
+                        <td>@customer.Username</td>
+                        <td>
+                            @if (customer.Comments != null && customer.Comments.Count > 0)
+                            {
+                                <ul>
+                                    @foreach (var comment in customer.Comments)
+                                    {
+                                        <li>
+                                            <strong>
+                                                <a href="@Url.Action("DetailItem", "Home", new { id = comment.ProductId })">
+                                                    @comment.ProductName
+                                                </a>:
+                                            </strong>
+                                            @comment.Content
+                                            <span class="text-muted">(@comment.DatePosted.ToString("g"))</span>
+                                        </li>
+                                    }
+                                </ul>
+                            }
+                            else
+                            {
+                                <p>No comments found.</p>
+                            }
+                        </td>
+                        <td>
+                            <button class="btn btn-danger" data-toggle="modal" data-target="#deleteModal" data-id="@customer.Id">Delete</button>
+                        </td>
+                        <td>
+                            @if (customer.IsBlocked)
+                            {
+                                <form asp-action="Unblock" method="post">
+                                    <input type="hidden" name="id" value="@customer.Id" />
+                                    <button type="submit" class="btn btn-success">Unblock</button>
+                                </form>
+                            }
+                            else
+                            {
+                                <form asp-action="Block" method="post">
+                                    <input type="hidden" name="id" value="@customer.Id" />
+                                    <button type="submit" class="btn btn-warning">Block</button>
+                                </form>
+                            }
+                        </td>
+                        <td>
+                            @if (customer.Orders != null && customer.Orders.Count > 0)
+                            {
+                                <div class="accordion" id="ordersAccordion@(customer.Id)">
+                                    @foreach (var order in customer.Orders)
+                                    {
+                                        <div class="card">
+                                            <div class="card-header" id="heading@(order.Id)">
+                                                <h2 class="mb-0">
+                                                    <button class="btn btn-link d-flex align-items-center" type="button" data-toggle="collapse"
+                                                            data-target="#collapse@(order.Id)">
+                                                        @if (order.IsPendingOrder)
+                                                        {
+                                                            <span class="pending-dot" style="background-color: red; margin-right: 10px; display: flex; width: 20px; height: 20px;"></span>
+                                                        }
+                                                        @if (order.IsCancellationRequestedOrder)
+                                                        {
+                                                            <span class="pending-dot" style="background-color: yellow; margin-right: 10px; display: flex; width: 20px; height: 20px;"></span>
+                                                        }
+                                                        Order #@order.Id (@order.OrderDate.ToString("g")) - @order.Status
                                                     </button>
-                                                </form>
-                                            }
+                                                </h2>
+                                            </div>
+                                            <div id="collapse@(order.Id)" class="collapse"
+                                                 data-parent="#ordersAccordion@(customer.Id)">
+                                                <div class="card-body">
+                                                    @if (order.Status != OrderStatus.ReceivedByCustomer)
+                                                    {
+                                                        <form asp-action="UpdateOrderStatus" method="post">
+                                                            <input type="hidden" name="orderId" value="@order.Id" />
+                                                            <div class="form-group">
+                                                                <label>Status:</label>
+                                                                <select name="status" class="form-control">
+                                                                    @foreach (OrderStatus status in Enum.GetValues(typeof(OrderStatus)))
+                                                                    {
+                                                                        if (status != OrderStatus.ReceivedByCustomer &&
+                                                                        ((order.Status == OrderStatus.CancellationRequested) ||
+                                                                        (status != OrderStatus.CancellationRequested)))
+                                                                        {
+                                                                            <option value="@status" selected="@(order.Status == status)">
+                                                                                @status
+                                                                            </option>
+                                                                        }
+                                                                    }
+                                                                </select>
+                                                            </div>
+                                                            <button type="submit" class="btn btn-primary">Update Status</button>
+                                                        </form>
+                                                    }
+                                                    else
+                                                    {
+                                                        <p>Status: <span class="badge badge-success">Received by customer</span></p>
+                                                    }
+                                                    @if (order.Status == OrderStatus.CancellationRequested)
+                                                    {
+                                                        <form method="post" asp-action="ConfirmOrderCancellation">
+                                                            <input type="hidden" name="orderId" value="@order.Id" />
+                                                            <button type="submit" class="btn btn-warning">
+                                                                Confirm Cancellation
+                                                            </button>
+                                                        </form>
+                                                    }
+                                                </div>
+                                            </div>
                                         </div>
-                                    </div>
+                                    }
                                 </div>
                             }
-                        </div>
-                    }
-                    else
-                    {
-                        <p>No orders</p>
-                    }
-                </td>
-            </tr>
-        }
+                            else
+                            {
+                                <p>No orders</p>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <div class="mt-3">
+        <a href="@Url.Action("Admin", "Home")" class="btn btn-secondary">Back to Admin</a>
+    </div>
+</div>
 
-        <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet" />
-        <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
-
-        <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="deleteModalLabel">Confirm Deletion</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        Are you sure you want to delete this user?
-                    </div>
-                    <div class="modal-footer">
-                        <form method="post" id="deleteForm" action="@Url.Action("DeleteCustomer", "Home")">
-                            <input type="hidden" name="id" id="deleteId" />
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                            <button type="submit" class="btn btn-danger">Delete</button>
-                        </form>
-                    </div>
-                </div>
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Confirm Deletion</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete this user?
+            </div>
+            <div class="modal-footer">
+                <form method="post" id="deleteForm" action="@Url.Action("DeleteCustomer", "Home")">
+                    <input type="hidden" name="id" id="deleteId" />
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
             </div>
         </div>
+    </div>
+</div>
 
-        <script>
-            $('#deleteModal').on('show.bs.modal', function (event) {
-                var button = $(event.relatedTarget);
-                var userId = button.data('id');
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+    <script>
+        $('#deleteModal').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget);
+            var userId = button.data('id');
+            var modal = $(this);
+            modal.find('#deleteId').val(userId);
+        });
+    </script>
+}
 
-                var modal = $(this);
-                modal.find('#deleteId').val(userId);
-            });
-        </script>
+<style>
+    .customers-container {
+        padding: 0 2rem;
+        margin-top: 20px;
+        width: 100%;
+        max-width: 100%;
+    }
 
-    </tbody>
-</table>
+    .table {
+        width: 100%;
+        font-size: 14px;
+    }
 
-<a href="@Url.Action("Admin", "Home")" class="btn btn-secondary">Back to Admin</a>
+    .table td, .table th {
+        padding: 8px;
+    }
+
+    .col-profile {
+        width: 80px;
+    }
+
+    .col-name {
+        width: 80px;
+    }
+
+    .col-date {
+        width: 100px;
+    }
+
+    .col-contact {
+        width: 80px;
+    }
+
+    .col-address {
+        width: 80px;
+    }
+
+    .col-username {
+        width: 80px;
+    }
+
+    .col-comments {
+        width: 200px;
+    }
+
+    .col-actions {
+        width: 80px;
+    }
+
+    .col-status {
+        width: 80px;
+    }
+
+    .col-orders {
+        width: 200px;
+    }
+
+    .profile-pic {
+        width: 40px !important;
+        height: 40px !important;
+        border-radius: 50%;
+    }
+
+    .btn-sm {
+        padding: 0.25rem 0.5rem;
+        font-size: 12px;
+    }
+
+    .accordion .card {
+        margin-bottom: 5px;
+    }
+
+    .accordion .card-header {
+        padding: 5px;
+    }
+
+    .accordion .btn-link {
+        font-size: 13px;
+        text-decoration: none;
+        color: #333;
+        width: 100%;
+        text-align: left;
+    }
+
+    .pending-dot {
+        min-width: 12px !important;
+        min-height: 12px !important;
+        border-radius: 50%;
+    }
+
+    .container {
+        max-width: 100% !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+</style>

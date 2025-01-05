@@ -1,0 +1,211 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Car Model Forum</title>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" defer></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            background-color: #f8f9fa;
+        }
+
+        .forum {
+            padding: 20px;
+        }
+
+        .slider {
+            margin-bottom: 40px;
+        }
+
+        .carousel-item img {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+        }
+
+        .news-item img, .forum-post img {
+            width: 100%;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .media-gallery img {
+            width: 100%;
+            margin-bottom: 15px;
+            border-radius: 8px;
+        }
+
+        .icon-section {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+        }
+
+        .icon img {
+            width: 50px;
+            height: 50px;
+        }
+
+        .icon p {
+            margin-top: 5px;
+        }
+
+        .qna-section .question {
+            margin-bottom: 15px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #fff;
+        }
+
+        .question .answer {
+            margin-top: 10px;
+            padding-left: 15px;
+            border-left: 3px solid #0d6efd;
+        }
+
+        .forum-section {
+            margin-bottom: 40px;
+        }
+    </style>
+</head>
+<body>
+    <section class="forum container">
+        <div id="carouselExampleIndicators" class="carousel slide" data-bs-ride="carousel">
+            <div class="carousel-indicators">
+                <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+                <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="1" aria-label="Slide 2"></button>
+                <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="2" aria-label="Slide 3"></button>
+            </div>
+            <div class="carousel-inner">
+                <div class="carousel-item active">
+                    <img src="~/images/car1.jpg" alt="Car 1">
+                </div>
+                <div class="carousel-item">
+                    <img src="~/images/car2.jpg" alt="Car 2">
+                </div>
+                <div class="carousel-item">
+                    <img src="~/images/car3.jpg" alt="Car 3">
+                </div>
+            </div>
+            <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Previous</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Next</span>
+            </button>
+        </div>
+
+        <div class="news row">
+            <div class="col-md-4">
+                <article class="news-item">
+                    <h2>Latest Car Models</h2>
+                    <p>Check out the latest releases in the model car industry. Stunning details and craftsmanship await!</p>
+                    <img src="~/images/news1.jpg" alt="Latest car models">
+                </article>
+            </div>
+            <div class="col-md-4">
+                <article class="news-item">
+                    <h2>Upcoming Events</h2>
+                    <p>Don't miss our exclusive model car expo happening next month. Limited tickets available!</p>
+                    <img src="~/images/news2.jpg" alt="Upcoming events">
+                </article>
+            </div>
+            <div class="col-md-4">
+                <article class="news-item">
+                    <h2>Tips for Collectors</h2>
+                    <p>Discover how to preserve and showcase your model car collection effectively.</p>
+                    <img src="~/images/news3.jpg" alt="Collector tips">
+                </article>
+            </div>
+        </div>
+
+        <div class="forum-section">
+            <div class="forum-post mb-4">
+                <h3>New Release Discussion</h3>
+                <p>What do you think about the latest Ferrari 250 GTO model? Share your thoughts below!</p>
+                <img src="~/images/post1.jpg" alt="Ferrari model">
+                <div class="reactions">
+                    <span>❤️ 34</span>
+                    <span>💬 12</span>
+                </div>
+                <div class="comments">
+                    <div class="comment">
+                        <p><strong>John:</strong> Amazing model! The details are spot on.</p>
+                    </div>
+                    <div class="comment">
+                        <p><strong>Sara:</strong> Totally agree! Just got mine delivered yesterday.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="forum-post mb-4">
+                <h3>Show Off Your Collection</h3>
+                <p>Post photos of your model car collection here and get feedback from fellow enthusiasts.</p>
+                <img src="~/images/post2.jpg" alt="Model car collection">
+                <div class="reactions">
+                    <span>❤️ 58</span>
+                    <span>💬 20</span>
+                </div>
+                <div class="comments">
+                    <div class="comment">
+                        <p><strong>Mike:</strong> Love your collection! The vintage cars are stunning.</p>
+                    </div>
+                    <div class="comment">
+                        <p><strong>Alice:</strong> Thanks, Mike! The Mustang is my favorite.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="media-gallery row">
+            <div class="col-md-6">
+                <video controls>
+                    <source src="promo.mp4" type="video/mp4">
+                </video>
+            </div>
+            <div class="col-md-6">
+                <img src="gallery1.jpg" alt="Gallery photo 1">
+                <img src="gallery2.jpg" alt="Gallery photo 2">
+                <img src="gallery3.jpg" alt="Gallery photo 3">
+            </div>
+        </div>
+
+        <div class="icon-section mt-4">
+            <div class="icon text-center">
+                <img src="icon1.png" alt="Community">
+                <p>Community</p>
+            </div>
+            <div class="icon text-center">
+                <img src="icon2.png" alt="News">
+                <p>News</p>
+            </div>
+            <div class="icon text-center">
+                <img src="icon3.png" alt="Events">
+                <p>Events</p>
+            </div>
+        </div>
+
+        <div class="qna-section mt-5">
+            <h3>Q&A Corner</h3>
+            <div class="question">
+                <p><strong>Anna:</strong> What's the best way to clean model car surfaces?</p>
+                <div class="answer">
+                    <p><strong>Tom:</strong> Use a soft microfiber cloth and mild soapy water. Avoid harsh chemicals!</p>
+                </div>
+            </div>
+            <div class="question">
+                <p><strong>Rob:</strong> Can anyone recommend a good display case for a 1:18 scale model?</p>
+                <div class="answer">
+                    <p><strong>Emily:</strong> Try the acrylic cases from DisplayMasters, they're sturdy and clear.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+</body>
+</html>

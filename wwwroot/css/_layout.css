@@ -1,0 +1,99 @@
+﻿body {
+    font-family: 'Roboto', sans-serif;
+    margin: 0;
+    padding: 0;
+    overflow-y: scroll;
+    color: black;
+}
+
+.nav {
+    gap: 15px;
+    display: flex;
+}
+
+.nav .nav-link {
+    font-size: 18px;
+    color: black;
+    padding: 10px 20px;
+    text-decoration: none;
+    border: 1px solid transparent;
+    box-sizing: border-box;
+    border-radius: 10px;
+    transition: background-color 0.3s ease, border-color 0.3s ease, transform 0.3s ease, color 0.3s ease;
+}
+
+.nav .nav-link:hover {
+    background-color: #f0f0f0;
+    border-color: #ccc;
+}
+
+.nav .nav-link:focus {
+    outline: none;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+}
+
+.nav-link svg {
+    color: black;
+    vertical-align: middle;
+    margin-right: 5px;
+    transition: transform 0.3s ease;
+}
+
+.nav-link:hover svg {
+    color: #505050;
+}
+
+.profile-pic-small {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.logotype {
+    width: 150px;
+    object-fit: contain;
+}
+
+header {
+    background-color: #fff;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    position: sticky;
+    width: 100%;
+    z-index: 999;
+}
+
+.container-fluid {
+    padding: 0 2rem;
+}
+
+.navbar-brand {
+    display: flex;
+    align-items: center;
+}
+
+.navbar-brand img {
+    margin-right: 10px;
+}
+
+.text-end {
+    white-space: nowrap;
+}
+
+.form-control {
+    width: 100%;
+    padding: 10px 15px;
+    border: 1px solid #ccc;
+    border-radius: 200px;
+    font-size: 18px;
+}
+
+.bi {
+    width: 30px;
+    height: 30px;
+}
+
+.bi.bi-info-square, .bi-people {
+    width: 20px;
+    height: 20px;
+}

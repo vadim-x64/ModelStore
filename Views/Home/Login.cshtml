@@ -1,16 +1,87 @@
 ﻿@model ModelStore.Models.Login
 
-<form method="post">
-    <div>
+<form method="post" class="login-form">
+    <div class="form-group">
         <label for="Username">Username</label>
         <input type="text" id="Username" name="Username" maxlength="25" required />
     </div>
-    <div>
+    <div class="form-group">
         <label for="Password">Password</label>
         <input type="password" id="Password" name="Password" maxlength="25" required />
     </div>
-    <div>
-        <button type="submit">Login</button>
-        <a asp-controller="Home" asp-action="Register">Register</a>
+    <div class="form-actions">
+        <button type="submit" class="btn-login">Login</button>
+        <a asp-controller="Home" asp-action="Register" class="link-register">Register</a>
     </div>
 </form>
+
+<style>
+    .login-form {
+        max-width: 400px;
+        margin: 2rem auto;
+        padding: 2rem;
+        border-radius: 10px;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        background: white;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+            .form-group input:focus {
+                outline: none;
+                border-color: #4A90E2;
+                box-shadow: 0 0 5px rgba(74, 144, 226, 0.3);
+            }
+
+    .form-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 2rem;
+    }
+
+    .btn-login {
+        background: #4A90E2;
+        color: white;
+        border: none;
+        padding: 0.75rem 2rem;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 1rem;
+        transition: background-color 0.3s ease;
+    }
+
+        .btn-login:hover {
+            background: #357ABD;
+        }
+
+    .link-register {
+        color: #4A90E2;
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.3s ease;
+    }
+
+        .link-register:hover {
+            color: #357ABD;
+            text-decoration: underline;
+        }
+</style>

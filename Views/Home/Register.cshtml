@@ -1,6 +1,6 @@
 ﻿@model ModelStore.Models.Registration
 
-<form method="post" enctype="multipart/form-data">
+<form class="registration-form" method="post" enctype="multipart/form-data">
     <div>
         <label for="ProfilePicture">Profile Picture</label>
         <input type="file" id="ProfilePicture" name="profilePicture" accept="image/*" />
@@ -46,3 +46,84 @@
 
     <a asp-controller="Home" asp-action="Login">Login</a>
 </form>
+
+<style>
+    .registration-form {
+        max-width: 500px;
+        margin: 2rem auto;
+        padding: 2rem;
+        background: #ffffff;
+        border-radius: 10px;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    }
+
+        .registration-form div {
+            margin-bottom: 1.5rem;
+        }
+
+        .registration-form label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .registration-form input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+            .registration-form input:focus {
+                outline: none;
+                border-color: #4A90E2;
+                box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+            }
+
+            .registration-form input[type="file"] {
+                padding: 0.5rem;
+                background: #f8f9fa;
+            }
+
+        .registration-form button {
+            width: 100%;
+            padding: 1rem;
+            background: #4A90E2;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+            .registration-form button:hover {
+                background: #357ABD;
+            }
+
+        .registration-form a {
+            display: block;
+            text-align: center;
+            margin-top: 1rem;
+            color: #4A90E2;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+            .registration-form a:hover {
+                text-decoration: underline;
+            }
+
+        /* Додаткові стилі для повідомлень про помилки валідації */
+        .registration-form input:invalid {
+            border-color: #dc3545;
+        }
+
+            .registration-form input:invalid:focus {
+                box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.25);
+            }
+</style>

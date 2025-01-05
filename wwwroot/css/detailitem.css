@@ -1,0 +1,36 @@
+﻿/* Ensure image is square and centered */
+.card-img-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+    .card-img-container img {
+        object-fit: cover; /* Ensures the image fills the container while maintaining aspect ratio */
+        width: 500px;
+        height: 500px;
+    }
+
+.quantity-selector {
+    display: flex;
+    align-items: center;
+}
+
+    .quantity-selector button {
+        width: 40px;
+        height: 40px;
+        font-size: 18px;
+    }
+
+    .quantity-selector input {
+        text-align: center;
+    }
+
+/* Styling the comments section */
+.list-group-item {
+    padding: 1rem;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}

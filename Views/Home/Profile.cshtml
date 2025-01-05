@@ -2,200 +2,196 @@
     ViewData["Title"] = "Profile";
 }
 
-<h2>Profile</h2>
+<div class="profile-container">
+    <h2>Profile</h2>
 
-<form id="profile-pic-form" enctype="multipart/form-data" method="post" action="@Url.Action("ChangeProfilePicture", "Home")">
-    <input id="file-input" type="file" name="profilePicture" class="hidden-input" accept="image/*" onchange="this.form.submit();" />
-</form>
+    <div class="profile-header">
+        <div class="profile-picture-section">
+            <form id="profile-pic-form" enctype="multipart/form-data" method="post" action="@Url.Action("ChangeProfilePicture", "Home")">
+                <input id="file-input" type="file" name="profilePicture" class="hidden-input" accept="image/*" onchange="this.form.submit();" />
+            </form>
 
-@if (ViewData["ProfilePicture"] != null)
-{
-    <img id="profile-pic" src="data:image/png;base64,@Convert.ToBase64String((byte[])ViewData["ProfilePicture"])"
-         alt="Profile Picture" class="profile-pic" onclick="document.getElementById('file-input').click();" />
-}
+            @if (ViewData["ProfilePicture"] != null)
+            {
+                <img id="profile-pic" src="data:image/png;base64,@Convert.ToBase64String((byte[])ViewData["ProfilePicture"])"
+                     alt="Profile Picture" class="profile-pic" onclick="document.getElementById('file-input').click();" />
+            }
 
-<form method="post" action="@Url.Action("ChangeProfilePicture", "Home")">
-    <input type="hidden" name="deletePicture" value="true" />
-    <button type="submit" class="btn-trash" title="Delete Profile Picture">
-        <i class="fas fa-trash-alt trash-icon"></i>
-    </button>
-</form>
+            <form method="post" action="@Url.Action("ChangeProfilePicture", "Home")">
+                <input type="hidden" name="deletePicture" value="true" />
+                <button type="submit" class="btn-trash" title="Delete Profile Picture">
+                    <i class="fas fa-trash-alt trash-icon"></i>
+                </button>
+            </form>
+        </div>
+
+        <div class="profile-info">
+            <form method="post" action="@Url.Action("EditProfile", "Home")" enctype="multipart/form-data">
+                <div class="form-grid">
+                    <div>
+                        <label>First Name:</label>
+                        <input type="text" name="FirstName" value="@ViewData["FirstName"]" required />
+                    </div>
+                    <div>
+                        <label>Last Name:</label>
+                        <input type="text" name="LastName" value="@ViewData["LastName"]" required />
+                    </div>
+                    <div>
+                        <label>Middle Name:</label>
+                        <input type="text" name="MiddleName" value="@ViewData["MiddleName"]" />
+                    </div>
+                    <div>
+                        <label>Email:</label>
+                        <input type="email" name="Email" value="@ViewData["Email"]" required />
+                    </div>
+                    <div>
+                        <label>Phone:</label>
+                        <input type="tel" name="Phone" value="@ViewData["Phone"]" required />
+                    </div>
+                    <div>
+                        <label>Address:</label>
+                        <input type="text" name="Address" value="@ViewData["Address"]" />
+                    </div>
+                    <div>
+                        <label>Username:</label>
+                        <input id="username" type="text" name="Username" value="@ViewData["Username"]" required />
+                    </div>
+                    <div>
+                        <label>New Password:</label>
+                        <input type="password" name="Password" />
+                    </div>
+                    <div>
+                        <label>Confirm New Password:</label>
+                        <input type="password" name="ConfirmPassword" />
+                    </div>
+                </div>
+                <div class="button-group">
+                    <button type="submit" id="saveChangesBtn" class="btn btn-success" disabled>Save Changes</button>
+                    <a href="@Url.Action("Index", "Home")" class="btn btn-secondary">Back</a>
+                    <a href="@Url.Action("Logout", "Home")" class="btn btn-danger">Logout</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="orders-section">
+        <h3>Your Orders</h3>
+        @if (ViewData["Orders"] != null)
+        {
+            var orders = (List<Order>)ViewData["Orders"];
+            if (orders.Any())
+            {
+                <div class="orders-grid">
+                    @foreach (var order in orders.OrderByDescending(o => o.OrderDate))
+                    {
+                        <div class="order-card" id="order-@order.Id">
+                            <a href="@Url.Action("OrderInfo", "Home", new { orderId = order.Id })">
+                                <h5>Order #@order.Id</h5>
+                            </a>
+                            <p>
+                                Status: <span class="badge @(order.Status switch
+                                {
+                                    OrderStatus.Pending => "badge-warning",
+                                    OrderStatus.Accepted => "badge-primary",
+                                    OrderStatus.Completed => "badge-info",
+                                    OrderStatus.ReceivedByCustomer => "badge-success",
+                                    _ => "badge-secondary"
+                                })">@(order.Status.ToString() == "ReceivedByCustomer" ? "Received" : order.Status.ToString())</span>
+                            </p>
+
+                            @if (order.Status == OrderStatus.Completed)
+                            {
+                                <form asp-action="ConfirmOrderReceived" method="post">
+                                    <input type="hidden" name="orderId" value="@order.Id" />
+                                    <button type="submit" class="btn btn-success">
+                                        Confirm Order Received
+                                    </button>
+                                </form>
+                            }
+
+                            @if (order.Status == OrderStatus.Pending || order.Status == OrderStatus.Accepted)
+                            {
+                                <form method="post" action="/Home/RequestOrderCancellation">
+                                    <input type="hidden" name="orderId" value="@order.Id" />
+                                    <button type="submit" class="btn btn-danger">
+                                        Скасувати замовлення
+                                    </button>
+                                </form>
+                            }
+                            else if (order.Status == OrderStatus.CancellationRequested)
+                            {
+                                <span class="text-warning">Запит на скасування відправлено</span>
+                            }
+
+                            <p>Order Date: @order.OrderDate.ToString("g")</p>
+                            @if (order.LastUpdated.HasValue)
+                            {
+                                <p>Last Updated: @order.LastUpdated.Value.ToString("g")</p>
+                            }
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <p>You haven't placed any orders yet.</p>
+            }
+        }
+        else
+        {
+            <p>No orders found.</p>
+        }
+    </div>
+
+
+
+
+
+
+    <div class="comments-section">
+        <div class="comments-header">
+            <h3>Your Comments</h3>
+            <span class="toggle-icon">▼</span>
+        </div>
+        <div class="comments-content">
+            @if (ViewData["Comments"] != null)
+            {
+                var comments = (List<ModelStore.Models.Comment>)ViewData["Comments"];
+                if (comments.Any())
+                {
+                    <ul class="list-group">
+                        @foreach (var comment in comments)
+                        {
+                            <li class="list-group-item">
+                                <strong>
+                                    Commented on:
+                                    <a href="@Url.Action("DetailItem", "Home", new { id = comment.ProductId })">
+                                        @comment.Product.Name
+                                    </a>
+                                </strong>
+                                <span class="text-muted">(@comment.DatePosted.ToString("g"))</span>
+                                <p>@comment.Content</p>
+                                <form method="post" action="@Url.Action("DeleteCommentFromProfile", "Home")" style="display:inline;">
+                                    <input type="hidden" name="commentId" value="@comment.Id" />
+                                    <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                                </form>
+                            </li>
+                        }
+                    </ul>
+                }
+                else
+                {
+                    <p>No comments found.</p>
+                }
+            }
+        </div>
+    </div>
+</div>
 
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
 
-<form method="post" action="@Url.Action("EditProfile", "Home")" enctype="multipart/form-data">
-    <div>
-        <label>First Name:</label>
-        <input type="text" name="FirstName" value="@ViewData["FirstName"]" required />
-    </div>
-    <div>
-        <label>Last Name:</label>
-        <input type="text" name="LastName" value="@ViewData["LastName"]" required />
-    </div>
-    <div>
-        <label>Middle Name:</label>
-        <input type="text" name="MiddleName" value="@ViewData["MiddleName"]" />
-    </div>
-    <div>
-        <label>Email:</label>
-        <input type="email" name="Email" value="@ViewData["Email"]" required />
-    </div>
-    <div>
-        <label>Phone:</label>
-        <input type="tel" name="Phone" value="@ViewData["Phone"]" required/>
-    </div>
-    <div>
-        <label>Address:</label>
-        <input type="text" name="Address" value="@ViewData["Address"]" />
-    </div>
-    <div>
-        <label>Username:</label>
-        <input id="username" type="text" name="Username" value="@ViewData["Username"]" required />
-    </div>
-
-    <div>
-        <label>New Password:</label>
-        <input type="password" name="Password" />
-    </div>
-    <div>
-        <label>Confirm New Password:</label>
-        <input type="password" name="ConfirmPassword" />
-    </div>
-    <button type="submit" id="saveChangesBtn" class="btn btn-success" disabled>Save Changes</button>
-</form>
-
-<a href="@Url.Action("Index", "Home")" class="btn btn-secondary">Back</a>
-<a href="@Url.Action("Logout", "Home")" class="btn btn-danger">Logout</a>
-
-<h3>Your Orders</h3>
-@if (ViewData["Orders"] != null)
-{
-    var orders = (List<Order>)ViewData["Orders"];
-    if (orders.Any())
-    {
-        <div class="list-group">
-            @foreach (var order in orders.OrderByDescending(o => o.OrderDate))
-            {
-                <div class="list-group-item" id="order-@order.Id">
-                    <a href="@Url.Action("OrderInfo", "Home", new { orderId = order.Id })">
-                        <h5>Order #@order.Id</h5>
-                    </a>
-                    <p>
-                        Status: <span class="badge @(order.Status switch
-                        {
-                            OrderStatus.Pending => "badge-warning",
-                            OrderStatus.Accepted => "badge-primary",
-
-                            OrderStatus.Completed => "badge-info",
-                            OrderStatus.ReceivedByCustomer => "badge-success",
-                            _ => "badge-secondary"
-                        })">@(order.Status.ToString() == "ReceivedByCustomer" ? "Received" : order.Status.ToString())</span>
-                    </p>
-
-                    @if (order.Status == OrderStatus.Completed)
-                    {
-                        <form asp-action="ConfirmOrderReceived" method="post" class="mt-2">
-                            <input type="hidden" name="orderId" value="@order.Id" />
-                            <button type="submit" class="btn btn-success">
-                                Confirm Order Received
-                            </button>
-                        </form>
-                    }
-
-                    @if (order.Status == OrderStatus.Pending || order.Status == OrderStatus.Accepted)
-                    {
-                        <form method="post" action="/Home/RequestOrderCancellation">
-                            <input type="hidden" name="orderId" value="@order.Id" />
-                            <button type="submit" class="btn btn-danger">
-                                Скасувати замовлення
-                            </button>
-                        </form>
-                    }
-                    else if (order.Status == OrderStatus.CancellationRequested)
-                    {
-                        <span class="text-warning">Запит на скасування відправлено</span>
-                    }
-
-                    <p>Order Date: @order.OrderDate.ToString("g")</p>
-                    @if (order.LastUpdated.HasValue)
-                    {
-                        <p>Last Updated: @order.LastUpdated.Value.ToString("g")</p>
-                    }
-                    @* <p>Payment Method: @order.PaymentMethod</p>
-                    <p>Delivery Method: @order.DeliveryMethod</p>
-                    <p>Delivery Address: @order.Address</p> *@
-                    
-                    @* <div class="mt-2">
-                        <h6>Order Items:</h6>
-                        <ul class="list-unstyled">
-                            @foreach (var item in order.OrderItems)
-                            {
-                                <li class="mb-2">
-                                    <div class="order-item">
-                                        <img src="data:image/png;base64,@Convert.ToBase64String(item.ProductPhoto)"
-                                             alt="@item.ProductName"
-                                             style="width:100px;height:100px;" />
-                                        <p>Назва товару: @item.ProductName</p>
-                                        <p>Опис: @item.ProductDescription</p>
-                                        <p>Ціна: @item.ProductPrice ₴</p>
-                                        <p>Кількість: @item.Quantity</p>
-                                        <p>Сума: @(item.ProductPrice * item.Quantity) ₴</p>
-                                    </div>
-                                </li>
-                            }
-                        </ul>
-                        <div class="text-right">
-                            <strong>Total: @order.OrderItems.Sum(item => item.Product.Price * item.Quantity).ToString("C")</strong>
-                        </div>
-                    </div> *@
-                </div>
-            }
-        </div>
-    }
-    else
-    {
-        <p>You haven't placed any orders yet.</p>
-    }
-}
-else
-{
-    <p>No orders found.</p>
-}
-
-<h3>Your Comments</h3>
-@if (ViewData["Comments"] != null)
-{
-    var comments = (List<ModelStore.Models.Comment>)ViewData["Comments"];
-    if (comments.Any())
-    {
-        <ul class="list-group">
-            @foreach (var comment in comments)
-            {
-                <li class="list-group-item">
-                    <strong>
-                        Commented on:
-                        <a href="@Url.Action("DetailItem", "Home", new { id = comment.ProductId })">
-                            @comment.Product.Name
-                        </a>
-                    </strong>
-                    <span class="text-muted">(@comment.DatePosted.ToString("g"))</span>
-                    <p>@comment.Content</p>
-                    <form method="post" action="@Url.Action("DeleteCommentFromProfile", "Home")" style="display:inline;">
-                        <input type="hidden" name="commentId" value="@comment.Id" />
-                        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
-                    </form>
-                </li>
-            }
-        </ul>
-    }
-    else
-    {
-        <p>No comments found.</p>
-    }
-}
-
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
+    document.addEventListener('DOMContentLoaded', function() {
         const saveButton = document.getElementById("saveChangesBtn");
         const inputs = Array.from(document.querySelectorAll("form input"));
         const newPasswordInput = document.querySelector("input[name='Password']");
@@ -208,7 +204,7 @@ else
 
         confirmPasswordInput.disabled = true;
 
-        newPasswordInput.addEventListener("input", function () {
+        newPasswordInput.addEventListener("input", function() {
             confirmPasswordInput.disabled = !newPasswordInput.value;
         });
 
@@ -218,25 +214,35 @@ else
                 saveButton.disabled = !hasChanges;
             });
         });
-    });
 
-    document.getElementById('username').addEventListener('blur', function () {
-        const username = this.value;
+        const commentsHeader = document.querySelector('.comments-header');
+        const commentsContent = document.querySelector('.comments-content');
 
-        if (username.trim() === '') {
-            return;
+        if (commentsHeader && commentsContent) {
+            commentsHeader.addEventListener('click', function() {
+                this.classList.toggle('active');
+                commentsContent.classList.toggle('active');
+            });
         }
 
-        fetch(`/Home/CheckUsernameAvailability?username=${encodeURIComponent(username)}`)
-            .then(response => response.json())
-            .then(data => {
-                if (!data.isAvailable) {
-                    alert('Таке ім\'я користувача вже зайняте');
-                }
-            })
-            .catch(() => {
-                alert('Помилка перевірки');
-            });
+        document.getElementById('username').addEventListener('blur', function() {
+            const username = this.value;
+
+            if (username.trim() === '') {
+                return;
+            }
+
+            fetch(`/Home/CheckUsernameAvailability?username=${encodeURIComponent(username)}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (!data.isAvailable) {
+                        alert('Таке ім\'я користувача вже зайняте');
+                    }
+                })
+                .catch(() => {
+                    alert('Помилка перевірки');
+                });
+        });
     });
 </script>
 
@@ -258,11 +264,162 @@ else
         cursor: pointer;
     }
 
-    .btn-trash:hover {
-        color: red;
-    }
+        .btn-trash:hover {
+            color: red;
+        }
 
     .trash-icon {
         font-size: 1.5rem;
+    }
+
+    .profile-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    .profile-header {
+        display: flex;
+        align-items: center;
+        gap: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .profile-info {
+        flex-grow: 1;
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+        .form-grid div {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-grid input {
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+    .orders-section {
+        margin-top: 2rem;
+    }
+
+    .orders-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .order-card {
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 1rem;
+        background: white;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+        .order-card h5 {
+            margin: 0 0 0.5rem 0;
+            color: #333;
+        }
+
+    .comments-section {
+        margin-top: 2rem;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+    }
+
+    .comments-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem;
+        background: #f8f9fa;
+        cursor: pointer;
+        border-radius: 8px 8px 0 0;
+    }
+
+        .comments-header h3 {
+            margin: 0;
+        }
+
+    .toggle-icon {
+        transition: transform 0.3s ease;
+    }
+
+    .comments-header.active .toggle-icon {
+        transform: rotate(180deg);
+    }
+
+    .comments-content {
+        display: none;
+        padding: 1rem;
+    }
+
+        .comments-content.active {
+            display: block;
+        }
+
+    .badge {
+        padding: 0.5em 1em;
+        border-radius: 4px;
+        font-size: 0.875rem;
+    }
+
+    .badge-warning {
+        background-color: #ffc107;
+        color: #000;
+    }
+
+    .badge-primary {
+        background-color: #007bff;
+        color: #fff;
+    }
+
+    .badge-info {
+        background-color: #17a2b8;
+        color: #fff;
+    }
+
+    .badge-success {
+        background-color: #28a745;
+        color: #fff;
+    }
+
+    .badge-secondary {
+        background-color: #6c757d;
+        color: #fff;
+    }
+
+    .btn {
+        padding: 0.5rem 1rem;
+        border-radius: 4px;
+        border: none;
+        cursor: pointer;
+        font-size: 0.875rem;
+        transition: background-color 0.2s;
+    }
+
+    .btn-success {
+        background-color: #28a745;
+        color: white;
+    }
+
+    .btn-danger {
+        background-color: #dc3545;
+        color: white;
+    }
+
+    .btn-secondary {
+        background-color: #6c757d;
+        color: white;
     }
 </style>

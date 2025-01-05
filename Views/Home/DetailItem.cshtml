@@ -1,121 +1,91 @@
 ﻿@model ModelStore.Models.Product
 
-<h2>@Model.Name</h2>
+<link rel="stylesheet" href="~/css/detailitem.css" asp-append-version="true" />
 
-<div class="card mb-3">
-    <img src="data:image/png;base64,@Convert.ToBase64String(Model.Photo)" class="card-img-top" alt="Product Image">
-    <div class="card-body">
-        <h5 id="price" class="card-title">Ціна: @Model.Price.ToString("C")</h5>
-        <p class="card-text">@Model.Description</p>
-
-        <div class="quantity-selector mb-2">
-            <button type="button" class="btn btn-secondary" onmousedown="startDecrement()" onmouseup="stopDecrement()" onmouseleave="stopDecrement()">-</button>
-            <input type="num" id="quantity" name="quantity" class="form-control d-inline" value="1" min="1" style="width: 60px; display: inline-block;" oninput="validateQuantity()" />
-            <button type="button" class="btn btn-secondary" onmousedown="startIncrement()" onmouseup="stopIncrement()" onmouseleave="stopIncrement()">+</button>
+<div class="container mt-4">
+    <div class="row">
+        <!-- Product Info Section -->
+        <div class="col-md-6">
+            <div class="card mb-3">
+                <div class="card-img-container">
+                    <img src="data:image/png;base64,@Convert.ToBase64String(Model.Photo)" class="card-img-top" alt="Product Image">
+                </div>
+            </div>
         </div>
 
-        <form method="post" action="@Url.Action("AddToCart", "Home")" class="add-to-cart-form">
-            <input type="hidden" name="productId" value="@Model.Id" />
-            <input type="hidden" name="quantity" value="1" />
-            <button type="submit" class="btn btn-success">Купити</button>
-        </form>
+        <div class="col-md-6">
+            <h2>@Model.Name</h2>
+            <p class="card-text">@Model.Description</p>
+            <h5 id="price" class="card-title">Ціна: @Model.Price.ToString("C")</h5>
+
+            <div class="quantity-selector mb-3">
+                <button type="button" class="btn btn-secondary" onmousedown="startDecrement()" onmouseup="stopDecrement()" onmouseleave="stopDecrement()">-</button>
+                <input type="num" id="quantity" name="quantity" class="form-control d-inline" value="1" min="1" style="width: 60px; display: inline-block;" oninput="validateQuantity()" />
+                <button type="button" class="btn btn-secondary" onmousedown="startIncrement()" onmouseup="stopIncrement()" onmouseleave="stopIncrement()">+</button>
+            </div>
+
+            <form method="post" action="@Url.Action("AddToCart", "Home")" class="add-to-cart-form">
+                <input type="hidden" name="productId" value="@Model.Id" />
+                <input type="hidden" name="quantity" value="1" class="quantity-input" />
+                <button type="submit" class="btn btn-success">Купити</button>
+            </form>
+
+            <div id="cart-message" class="text-success mt-2" style="display: none;">ДОДАНО У КОШИК</div>
+        </div>
+    </div>
+
+    <!-- Comments Section -->
+    <div class="mt-5">
+        <h3>Comments</h3>
+        @if (User.Identity.IsAuthenticated)
+        {
+            <form method="post" action="@Url.Action("AddComment", "Home")">
+                <input type="hidden" name="productId" value="@Model.Id" />
+                <div class="form-group">
+                    <label for="commentContent">Add a comment:</label>
+                    <textarea id="commentContent" name="content" class="form-control" required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Submit Comment</button>
+            </form>
+        }
+        else
+        {
+            <p>Please log in to leave a comment.</p>
+        }
+
+        @if (ViewBag.Comments != null)
+        {
+            <ul class="list-group mt-3">
+                @foreach (var comment in ViewBag.Comments)
+                {
+                    <li class="list-group-item">
+                        <strong>@comment.Username:</strong>
+                        <span class="text-muted">(@comment.DatePosted.ToString("g"))</span>
+                        <p>@comment.Content</p>
+
+                        @if (User.IsInRole("2"))
+                        {
+                            <form method="post" action="@Url.Action("DeleteComment", "Home")" style="display:inline;">
+                                <input type="hidden" name="commentId" value="@comment.Id" />
+                                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                            </form>
+                        }
+                    </li>
+                }
+            </ul>
+        }
+        else
+        {
+            <p>No comments found.</p>
+        }
     </div>
 </div>
 
-<h3>Comments</h3>
-@if (User.Identity.IsAuthenticated)
-{
-    <form method="post" action="@Url.Action("AddComment", "Home")">
-        <input type="hidden" name="productId" value="@Model.Id" />
-        <div class="form-group">
-            <label for="commentContent">Add a comment:</label>
-            <textarea id="commentContent" name="content" class="form-control" required></textarea>
-        </div>
-        <button type="submit" class="btn btn-primary">Submit Comment</button>
-    </form>
-}
-else
-{
-    <p>Please log in to leave a comment.</p>
-}
-
-@if (ViewBag.Comments != null)
-{
-    <ul class="list-group">
-        @foreach (var comment in ViewBag.Comments)
-        {
-            <li class="list-group-item">
-                <strong>
-                    @comment.Username:
-                </strong>
-                <span class="text-muted">(@comment.DatePosted.ToString("g"))</span>
-                <p>@comment.Content</p>
-
-                @if (User.IsInRole("2"))
-                {
-                    <form method="post" action="@Url.Action("DeleteComment", "Home")" style="display:inline;">
-                        <input type="hidden" name="commentId" value="@comment.Id" />
-                        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
-                    </form>
-                }
-            </li>
-        }
-    </ul>
-}
-else
-{
-    <p>No comments found.</p>
-}
-
 @section Scripts {
+    <script src="~/js/detailitem.js"></script>
     <script>
-        var incrementInterval, decrementInterval;
-
-        function incrementQuantity() {
-            var quantityInput = document.getElementById('quantity');
-            quantityInput.value = parseInt(quantityInput.value) + 1;
-        }
-
-        function decrementQuantity() {
-            var quantityInput = document.getElementById('quantity');
-            if (quantityInput.value > 1) {
-                quantityInput.value = parseInt(quantityInput.value) - 1;
-            }
-        }
-
-        function startIncrement() {
-            incrementQuantity();
-            incrementInterval = setInterval(incrementQuantity, 100);
-        }
-
-        function stopIncrement() {
-            clearInterval(incrementInterval);
-        }
-
-        function startDecrement() {
-            decrementQuantity();
-            decrementInterval = setInterval(decrementQuantity, 100);
-        }
-
-        function stopDecrement() {
-            clearInterval(decrementInterval);
-        }
-
-            function validateQuantity() {
-            var quantityInput = document.getElementById('quantity');
-            var value = quantityInput.value;
-
-            if (isNaN(value) || value < 1) {
-                quantityInput.value = 1;
-            }
-
-            if (value.startsWith("0")) {
-            quantityInput.value = 1;
-        }
-        }
-
-           $(document).ready(function() {
-            $('.add-to-cart-form').on('submit', function(e) {
+                $(document).ready(function () {
+            $('.add-to-cart-form').on('submit', function (e) {
                 e.preventDefault();
                 var form = $(this);
                 var quantity = $('#quantity').val();
@@ -124,6 +94,12 @@ else
                 $.post('@Url.Action("AddToCart", "Home")', {
                     productId: form.find('input[name="productId"]').val(),
                     quantity: quantity
+                }).done(function () {
+                    var message = $('#cart-message');
+                    message.show();
+                    setTimeout(function () {
+                        message.hide();
+                    }, 3000);
                 });
             });
         });
