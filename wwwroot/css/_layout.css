@@ -1,99 +1,264 @@
 ﻿body {
-    font-family: 'Roboto', sans-serif;
+    font-family: 'Segoe UI';
     margin: 0;
     padding: 0;
-    overflow-y: scroll;
     color: black;
+    overflow-y: scroll;
+    user-select: none;
 }
 
-.nav {
-    gap: 15px;
+header {
+    background-color: white;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    padding: 20px;
+}
+
+.header-wrapper {
     display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
 }
 
-.nav .nav-link {
-    font-size: 18px;
+.logo-nav-wrapper, .navbar-brand, .user-menu {
+    display: flex;
+    align-items: center;
+}
+
+.logotype {
+    width: 200px;
+    object-fit: contain;
+}
+
+.nav-menu {
+    display: flex;
+    list-style: none;
+    gap: 15px;
+    margin: 0;
+    padding: 0;
+}
+
+.nav-link {
+    font-size: 24px;
     color: black;
     padding: 10px 20px;
     text-decoration: none;
     border: 1px solid transparent;
     box-sizing: border-box;
-    border-radius: 10px;
+    border-radius: 200px;
     transition: background-color 0.3s ease, border-color 0.3s ease, transform 0.3s ease, color 0.3s ease;
 }
 
-.nav .nav-link:hover {
-    background-color: #f0f0f0;
-    border-color: #ccc;
+.nav-link:hover {
+    background-color: whitesmoke;
+    border-color: grey;
+    color: black;
 }
 
-.nav .nav-link:focus {
+.nav-link:focus {
     outline: none;
     box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+    color: black;
 }
 
 .nav-link svg {
     color: black;
-    vertical-align: middle;
-    margin-right: 5px;
-    transition: transform 0.3s ease;
+    vertical-align: baseline;
 }
 
-.nav-link:hover svg {
-    color: #505050;
+.nav-link.log {
+    border: none;
+    transition: color 0.3s ease;
 }
 
-.profile-pic-small {
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    object-fit: cover;
+.nav-link.log:hover {
+    background-color: transparent;
+    border-color: none;
+    color: gray;
 }
 
-.logotype {
-    width: 150px;
-    object-fit: contain;
+.nav-link.log:focus {
+    box-shadow: none;
 }
 
-header {
-    background-color: #fff;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    position: sticky;
-    width: 100%;
-    z-index: 999;
-}
-
-.container-fluid {
-    padding: 0 2rem;
-}
-
-.navbar-brand {
+.search-wrapper {
     display: flex;
     align-items: center;
+    flex-grow: 1;
+    margin: auto 20px;
 }
 
-.navbar-brand img {
-    margin-right: 10px;
-}
-
-.text-end {
-    white-space: nowrap;
+.search-form {
+    width: 100%;
 }
 
 .form-control {
     width: 100%;
     padding: 10px 15px;
-    border: 1px solid #ccc;
+    border: 1px solid grey;
     border-radius: 200px;
+    font-size: 24px;
+}
+
+.cart-link {
+    margin: auto 20px;
+    color: black;
+    transition: color 0.3s ease;
+}
+
+.cart-link:hover {
+    color: gray;
+}
+
+.cart-link svg {
+    width: 35px;
+    height: 35px;
+}
+
+.auth-section {
+    white-space: nowrap;
+}
+
+.user-dropdown-toggle {
+    text-decoration: none;
+}
+
+.dropdown-menu {
+    text-align: left;
     font-size: 18px;
+    border: 2px solid grey;
 }
 
-.bi {
-    width: 30px;
-    height: 30px;
+ul li .dropdown-item {
+    color: black;
 }
 
-.bi.bi-info-square, .bi-people {
+ul li .dropdown-item:hover {
+    background-color: gainsboro;
+}
+
+ul li .dropdown-item:focus {
+    background-color: gainsboro;
+    color: black;
+}
+
+.dropdown-divider {
+    border-top: 2px solid grey;
+    margin: 10px auto;
+}
+
+.profile-pic-small {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin: auto 20px;
+}
+
+.bi.bi-info-square, .bi.bi-people {
     width: 20px;
     height: 20px;
+}
+
+.fade-in {
+    animation: fadeInAnimation 0.5s ease-in-out;
+}
+
+@keyframes fadeInAnimation {
+    from {
+        opacity: 0;
+        background-color: white;
+    }
+
+    to {
+        opacity: 1;
+        background-color: transparent;
+    }
+}
+
+@media (max-width: 768px) {
+    .logotype {
+        width: 150px;
+        margin-bottom: 30px;
+    }
+
+    .header-wrapper, .logo-nav-wrapper, .navbar-brand, .nav-menu, .navbar-brand {
+        flex-direction: column;
+        margin: auto;
+    }
+
+    .nav-link, .form-control, .dropdown-item {
+        font-size: 18px;
+    }
+
+    .nav-menu {
+        gap: 0;
+        align-items: center;
+    }
+
+    .nav-link svg {
+        display: none;
+    }
+
+    .nav-link.log {
+        padding: 0;
+    }
+
+    .search-wrapper, .dropdown-menu {
+        width: 100%;
+        margin: auto;
+    }
+
+    .search-wrapper {
+        order: 2;
+        margin-top: 30px;
+    }
+
+    .user-menu {
+        order: 1;
+        display: flex;
+        justify-content: space-around;
+        width: 100%;
+        margin: 10px auto;
+    }
+
+    .cart-link, .auth-section {
+        margin: 0;
+    }
+
+    .profile-pic-small, .cart-link svg {
+        width: 30px;
+        height: 30px;
+        margin: 0;
+    }
+
+    .bi.bi-info-square, .bi.bi-people {
+        width: 15px;
+        height: 15px;
+    }
+
+    ul li .dropdown-item:hover, ul li .dropdown-item:focus {
+        background-color: transparent;
+        color: black;
+    }
+
+    .nav-link:hover, .nav-link.log:hover {
+        background-color: transparent;
+        border-color: transparent;
+        color: black;
+    }
+
+    .nav-link:focus {
+        outline: none;
+        box-shadow: none;
+        color: black;
+    }
+
+    .nav-link.log:focus {
+        box-shadow: none;
+    }
+
+    .cart-link:hover {
+        color: black;
+    }
 }

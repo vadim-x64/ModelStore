@@ -1,87 +1,37 @@
 ﻿@model ModelStore.Models.Login
-
-<form method="post" class="login-form">
-    <div class="form-group">
-        <label for="Username">Username</label>
-        <input type="text" id="Username" name="Username" maxlength="25" required />
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0", user-scalable="no" />
+    <title>ModelStore</title>
+    <link rel="stylesheet" href="~/css/login.css" asp-append-version="true" />
+</head>
+<body>
+    <div id="error-message" class="error-modal"></div>
+    <div class="login-container">
+        <form method="post" class="login-form">
+            <button type="submit" class="btn-login">
+                <img src="~/images/arrow.png" />
+            </button>
+            <div class="form-group">
+                <input type="text" id="Username" name="Username" placeholder="Ім'я користувача" required />
+            </div>
+            <div class="form-group">
+                <input type="password" id="Password" name="Password" placeholder="Пароль" required />
+                <div class="password-toggle">
+                    <input type="checkbox" id="showPassword" />
+                    <label for="showPassword">Показати пароль</label>
+                </div>
+            </div>
+            <div class="form-actions">
+                <div class="register-container">
+                    <span class="register-text">Ще не маєте акаунту?</span>
+                    <a asp-controller="Home" asp-action="Register" class="link-register">Зареєструватися</a>
+                </div>
+            </div>
+        </form>
     </div>
-    <div class="form-group">
-        <label for="Password">Password</label>
-        <input type="password" id="Password" name="Password" maxlength="25" required />
-    </div>
-    <div class="form-actions">
-        <button type="submit" class="btn-login">Login</button>
-        <a asp-controller="Home" asp-action="Register" class="link-register">Register</a>
-    </div>
-</form>
-
-<style>
-    .login-form {
-        max-width: 400px;
-        margin: 2rem auto;
-        padding: 2rem;
-        border-radius: 10px;
-        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-        background: white;
-    }
-
-    .form-group {
-        margin-bottom: 1.5rem;
-    }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 500;
-            color: #333;
-        }
-
-        .form-group input {
-            width: 100%;
-            padding: 0.75rem;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 1rem;
-            transition: border-color 0.3s ease;
-        }
-
-            .form-group input:focus {
-                outline: none;
-                border-color: #4A90E2;
-                box-shadow: 0 0 5px rgba(74, 144, 226, 0.3);
-            }
-
-    .form-actions {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-top: 2rem;
-    }
-
-    .btn-login {
-        background: #4A90E2;
-        color: white;
-        border: none;
-        padding: 0.75rem 2rem;
-        border-radius: 5px;
-        cursor: pointer;
-        font-size: 1rem;
-        transition: background-color 0.3s ease;
-    }
-
-        .btn-login:hover {
-            background: #357ABD;
-        }
-
-    .link-register {
-        color: #4A90E2;
-        text-decoration: none;
-        font-weight: 500;
-        transition: color 0.3s ease;
-    }
-
-        .link-register:hover {
-            color: #357ABD;
-            text-decoration: underline;
-        }
-</style>
+    <script src="~/js/login.js"></script>
+</body>
+</html>

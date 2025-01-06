@@ -1,129 +1,64 @@
 ﻿@model ModelStore.Models.Registration
-
-<form class="registration-form" method="post" enctype="multipart/form-data">
-    <div>
-        <label for="ProfilePicture">Profile Picture</label>
-        <input type="file" id="ProfilePicture" name="profilePicture" accept="image/*" />
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" , user-scalable="no" />
+    <title>ModelStore</title>
+    <link rel="stylesheet" href="~/css/register.css" asp-append-version="true" />
+</head>
+<body>
+    <div id="error-message" class="error-modal"></div>
+    <div class="registration-form-container">
+        <form class="registration-form" method="post" enctype="multipart/form-data">
+            <div class="form-group">
+                <input type="file" id="ProfilePicture" name="profilePicture" accept="image/*" />
+            </div>
+            <div class="form-group">
+                <input type="text" id="FirstName" name="FirstName" placeholder="Ім'я" required oninput="allowOnlyLetters(event)" />
+            </div>
+            <div class="form-group">
+                <input type="text" id="LastName" name="LastName" placeholder="Прізвище" required oninput="allowOnlyLetters(event)" />
+            </div>
+            <div class="form-group">
+                <input type="text" id="MiddleName" name="MiddleName" placeholder="По батькові" oninput="allowOnlyLetters(event)" />
+            </div>
+            <div class="form-group">
+                <input type="date" id="BirthDate" name="BirthDate" required placeholder="Дата народження" max="" />
+            </div>
+            <div class="form-group">
+                <input type="tel" id="Phone" name="Phone" placeholder="+380XXXXXXXXX" required pattern="\+380\d{9}" />
+            </div>
+            <div class="form-group">
+                <input type="email" id="Email" name="Email" placeholder="Пошта" required />
+            </div>
+            <div class="form-group">
+                <input type="text" id="Address" name="Address" placeholder="Адреса" />
+            </div>
+            <div class="form-group">
+                <input type="text" id="Username" name="Username" placeholder="Ім'я користувача" required />
+            </div>
+            <div class="form-group">
+                <div class="password-field-container">
+                    <input type="password" id="Password" name="Password" placeholder="Пароль" required minlength="8" />
+                    <button type="button" id="generatePasswordBtn" class="generate-password-btn">
+                        <img src="~/images/key.png" alt="Generate Password Icon" />
+                    </button>
+                </div>
+                <div class="password-toggle">
+                    <input type="checkbox" id="showPassword" />
+                    <label for="showPassword">Показати пароль</label>
+                </div>
+            </div>
+            <div id="password-strength-container">
+                <div id="password-strength-bar" class="strength-bar"></div>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="submit-btn">Продовжити</button>
+                <a asp-controller="Home" asp-action="Login" class="link-login">Увійти</a>
+            </div>
+        </form>
     </div>
-    <div>
-        <label for="FirstName">First Name</label>
-        <input type="text" id="FirstName" name="FirstName" required />
-    </div>
-    <div>
-        <label for="LastName">Last Name</label>
-        <input type="text" id="LastName" name="LastName" required />
-    </div>
-    <div>
-        <label for="MiddleName">Middle Name</label>
-        <input type="text" id="MiddleName" name="MiddleName" />
-    </div>
-    <div>
-        <label for="BirthDate">Birth Date</label>
-        <input type="date" id="BirthDate" name="BirthDate" required />
-    </div>
-    <div>
-        <label for="Phone">Phone</label>
-        <input type="tel" id="Phone" name="Phone" required />
-    </div>
-    <div>
-        <label for="Email">Email</label>
-        <input type="email" id="Email" name="Email" required />
-    </div>
-    <div>
-        <label for="Address">Address</label>
-        <input type="text" id="Address" name="Address" />
-    </div>
-    <div>
-        <label for="Username">Username</label>
-        <input type="text" id="Username" name="Username" required />
-    </div>
-    <div>
-        <label for="Password">Password</label>
-        <input type="password" id="Password" name="Password" required />
-    </div>
-
-    <button type="submit">Register</button>
-
-    <a asp-controller="Home" asp-action="Login">Login</a>
-</form>
-
-<style>
-    .registration-form {
-        max-width: 500px;
-        margin: 2rem auto;
-        padding: 2rem;
-        background: #ffffff;
-        border-radius: 10px;
-        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-    }
-
-        .registration-form div {
-            margin-bottom: 1.5rem;
-        }
-
-        .registration-form label {
-            display: block;
-            margin-bottom: 0.5rem;
-            color: #333;
-            font-weight: 500;
-        }
-
-        .registration-form input {
-            width: 100%;
-            padding: 0.75rem;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 1rem;
-            transition: border-color 0.3s ease;
-        }
-
-            .registration-form input:focus {
-                outline: none;
-                border-color: #4A90E2;
-                box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
-            }
-
-            .registration-form input[type="file"] {
-                padding: 0.5rem;
-                background: #f8f9fa;
-            }
-
-        .registration-form button {
-            width: 100%;
-            padding: 1rem;
-            background: #4A90E2;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-
-            .registration-form button:hover {
-                background: #357ABD;
-            }
-
-        .registration-form a {
-            display: block;
-            text-align: center;
-            margin-top: 1rem;
-            color: #4A90E2;
-            text-decoration: none;
-            font-weight: 500;
-        }
-
-            .registration-form a:hover {
-                text-decoration: underline;
-            }
-
-        /* Додаткові стилі для повідомлень про помилки валідації */
-        .registration-form input:invalid {
-            border-color: #dc3545;
-        }
-
-            .registration-form input:invalid:focus {
-                box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.25);
-            }
-</style>
+    <script src="~/js/register.js"></script>
+</body>
+</html>

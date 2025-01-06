@@ -1,0 +1,210 @@
+﻿body {
+    font-family: 'Segoe UI';
+    margin: 0;
+    padding: 0;
+    color: black;
+    overflow-y: scroll;
+    user-select: none;
+}
+
+.registration-form-container {
+    width: 450px;
+    height: auto;
+    margin: 100px auto;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    transition: box-shadow 0.3s ease;
+}
+
+.registration-form-container:hover {
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+}
+
+.registration-form {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 50px;
+}
+
+.form-group {
+    width: 100%;
+    margin-bottom: 15px;
+    position: relative;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 15px;
+    border: 1px solid grey;
+    border-radius: 10px;
+    font-size: 24px;
+    background-color: whitesmoke;
+    transition: all 0.3s ease;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: grey;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-top: 50px;
+}
+
+.submit-btn {
+    background-color: transparent;
+    color: dodgerblue;
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+    padding: 0;
+}
+
+.link-login {
+    color: black;
+    font-size: 18px;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.link-login:hover {
+    color: black;
+}
+
+.password-toggle {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 10px;
+    justify-content: flex-start;
+}
+
+.password-toggle label {
+    font-size: 18px;
+    color: black;
+}
+
+.password-toggle input[type="checkbox"] {
+    width: 15px;
+    height: 15px;
+    cursor: pointer;
+}
+
+.error-modal {
+    position: fixed;
+    top: -100px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: red;
+    color: white;
+    padding: 15px;
+    border-radius: 10px;
+    font-size: 18px;
+    transition: all 0.5s ease-in-out;
+    z-index: 999;
+}
+
+.error-modal.show {
+    top: 20px;
+}
+
+.error-modal.hide {
+    top: -100px;
+}
+
+#password-strength-container {
+    width: 100%;
+    background-color: #ddd;
+    border-radius: 5px;
+}
+
+#password-strength-bar {
+    height: 10px;
+    border-radius: 5px;
+    transition: width 0.3s ease;
+}
+
+.password-field-container {
+    position: relative;
+    width: 100%;
+}
+
+.password-field-container input[type="password"] {
+    width: 100%;
+    padding-right: 50px;
+    box-sizing: border-box;
+}
+
+.generate-password-btn {
+    position: absolute;
+    top: 50%;
+    right: 15px;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+}
+
+.generate-password-btn img {
+    width: 30px;
+    height: 30px;
+}
+
+@media (max-width: 768px) {
+    .registration-form-container {
+        width: 100%;
+        padding: 15px;
+        margin: 30px auto;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    }
+
+    .registration-form-container:hover {
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    }
+
+    .registration-form {
+        margin-top: 20px;
+    }
+
+    .form-group input {
+        padding: 10px;
+        font-size: 16px;
+    }
+
+    .password-field-container input[type="password"] {
+        padding-right: 30px;
+    }
+
+    .password-toggle label,
+    .register-text {
+        font-size: 14px;
+    }
+
+    .error-modal {
+        font-size: 14px;
+        padding: 10px;
+        width: 250px;
+    }
+
+    .submit-btn {
+        font-size: 16px;
+    }
+
+    .link-login {
+        font-size: 14px;
+    }
+
+    .generate-password-btn img {
+        width: 20px;
+        height: 20px;
+    }
+}

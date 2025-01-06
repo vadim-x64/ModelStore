@@ -855,8 +855,7 @@ namespace ModelStore.Controllers
                 {
                     if (user.IsBlocked)
                     {
-                        ModelState.AddModelError("", "You have been blocked by admin. Please, contact support.");
-                        return View(model);
+                        return Json(new { success = false, message = "Вас було заблоковано. Зв'яжіться з адміністрацією." });
                     }
 
                     var claims = new List<Claim>
@@ -868,14 +867,13 @@ namespace ModelStore.Controllers
                     var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
                     await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
 
-                    return Redirect(returnUrl ?? Url.Action("Index"));
+                    return Json(new { success = true, redirectUrl = returnUrl ?? Url.Action("Index") });
                 }
 
-                ModelState.AddModelError("", "Invalid username or password");
+                return Json(new { success = false, message = "Невірний логін або пароль." });
             }
 
-            ViewData["ReturnUrl"] = returnUrl;
-            return View(model);
+            return Json(new { success = false, message = "Помилка введення." });
         }
 
         public async Task<IActionResult> Logout()
@@ -901,17 +899,44 @@ namespace ModelStore.Controllers
             return View();
         }
 
+        private string GetPasswordStrength(string password)
+        {
+            bool hasUpperCase = password.Any(c => char.IsUpper(c));
+            bool hasLowerCase = password.Any(c => char.IsLower(c));
+            bool hasDigit = password.Any(c => char.IsDigit(c));
+            bool hasSpecialChar = password.Any(c => !char.IsLetterOrDigit(c));
+            if (password.Length < 8)
+            {
+                return "weak";
+            }
+            if (hasUpperCase && hasLowerCase && hasDigit && hasSpecialChar)
+            {
+                return "strong";
+            }
+            if ((hasUpperCase || hasLowerCase) && (hasDigit || hasSpecialChar))
+            {
+                return "medium";
+            }
+            return "weak";
+        }
+
         [HttpPost]
         public async Task<IActionResult> Register(Registration model, IFormFile profilePicture, Login user, string returnUrl = null)
         {
             try
             {
+                var passwordStrength = GetPasswordStrength(user.Password);
+
+                // Заборонити реєстрацію тільки якщо пароль слабкий
+                if (passwordStrength == "weak")
+                {
+                    return Json(new { success = false, message = "Введено некоректний пароль." });
+                }
+
                 var existingUser = await _db.User.FirstOrDefaultAsync(u => u.Username == user.Username);
                 if (existingUser != null)
                 {
-                    ModelState.AddModelError(string.Empty, "Username is already taken.");
-                    ViewData["ReturnUrl"] = returnUrl;
-                    return View(model);
+                    return Json(new { success = false, message = "Ім'я користувача вже зайняте." });
                 }
 
                 if (profilePicture != null)
@@ -947,39 +972,36 @@ namespace ModelStore.Controllers
                 var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
                 await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
 
-                return Redirect(returnUrl ?? Url.Action("Index"));
+                return Json(new { success = true, redirectUrl = returnUrl ?? Url.Action("Index") });
             }
             catch (Exception ex)
             {
-
-                ModelState.AddModelError(string.Empty, "Error during registration. Please try again.");
-                ViewData["ReturnUrl"] = returnUrl;
-                return View(model);
+                return Json(new { success = false, message = "Помилка реєстрації." });
             }
         }
 
-        public IActionResult Privacy()
-        {
-            if (User.Identity.IsAuthenticated)
-            {
-                var user = _db.User.FirstOrDefault(u => u.Username == User.Identity.Name);
-                if (user != null)
-                {
-                    var profile = _db.Users.FirstOrDefault(r => r.Id == user.Id);
-                    if (profile != null)
-                    {
-                        ViewData["ProfilePicture"] = profile.ProfilePicture;
-                    }
-                }
-            }
-            return View();
-        }
+        //public IActionResult Privacy()
+        //{
+        //    if (User.Identity.IsAuthenticated)
+        //    {
+        //        var user = _db.User.FirstOrDefault(u => u.Username == User.Identity.Name);
+        //        if (user != null)
+        //        {
+        //            var profile = _db.Users.FirstOrDefault(r => r.Id == user.Id);
+        //            if (profile != null)
+        //            {
+        //                ViewData["ProfilePicture"] = profile.ProfilePicture;
+        //            }
+        //        }
+        //    }
+        //    return View();
+        //}
 
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-        }
+        //[ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        //public IActionResult Error()
+        //{
+        //    return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        //}
 
         [HttpPost]
         [Authorize(Roles = "2")]

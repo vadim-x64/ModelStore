@@ -1,0 +1,61 @@
+﻿body {
+    background-image: url(../images/back6.jpg);
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+.contact-page {
+    padding: 50px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 30px;
+    width: 100%;
+    margin: auto;
+}
+
+.contact-card {
+    background: linear-gradient(135deg, #430CEB, #0C1CEB, #3B5EEA);
+    color: white;
+    width: 100%;
+    max-width: 450px;
+    height: 200px;
+    border-radius: 10px;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.5);
+    text-align: center;
+    padding: 20px;
+    margin: auto;
+    transition: box-shadow 0.3s ease;
+}
+
+    .contact-card:hover {
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.7);
+    }
+
+    .contact-card i {
+        font-size: 44px;
+        margin-bottom: 20px;
+        color: #F0D400;
+    }
+
+    .contact-card h3 {
+        font-size: 24px;
+        margin-bottom: 10px;
+    }
+
+    .contact-card p {
+        font-size: 14px;
+        margin-bottom: 15px;
+        color: #E2E7EF;
+    }
+
+.social-icons {
+    display: flex;
+    justify-content: center;
+    gap: 50px;
+    margin-top: 50px;
+}
+
+    .social-icons a {
+        color: white;
+    }

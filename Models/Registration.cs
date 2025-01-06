@@ -16,7 +16,7 @@
 
         public string Email { get; set; }
 
-        public string Address { get; set; }
+        public string? Address { get; set; }
 
         public byte[]? ProfilePicture { get; set; }
     }
