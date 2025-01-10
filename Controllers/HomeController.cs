@@ -20,6 +20,259 @@ namespace ModelStore.Controllers
             _db = db;
         }
 
+        [HttpGet]
+        public IActionResult Register(string returnUrl = null)
+        {
+            if (User.Identity.IsAuthenticated)
+            {
+                return RedirectToAction("Index", "Home");
+            }
+
+            ViewData["ReturnUrl"] = returnUrl ?? Url.Action("Index", "Home");
+            return View();
+        }
+
+        private string GetPasswordStrength(string password)
+        {
+            bool hasUpperCase = password.Any(char.IsUpper);
+            bool hasLowerCase = password.Any(char.IsLower);
+            bool hasDigit = password.Any(char.IsDigit);
+            bool hasSpecialChar = password.Any(c => !char.IsLetterOrDigit(c));
+            bool isLongEnough = password.Length >= 8;
+
+            if (isLongEnough && hasUpperCase && hasLowerCase && hasDigit && hasSpecialChar)
+            {
+                return "strong";
+            }
+            return "weak";
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Register(Registration model, IFormFile profilePicture, Login user, string returnUrl = null)
+        {
+            try
+            {
+                var passwordStrength = GetPasswordStrength(user.Password);
+                if (passwordStrength == "weak")
+                {
+                    return Json(new { success = false, message = "Введено некоректний пароль." });
+                }
+
+                var existingUser = await _db.User.FirstOrDefaultAsync(u => u.Username == user.Username);
+                if (existingUser != null)
+                {
+                    return Json(new { success = false, message = "Ім'я користувача вже зайняте." });
+                }
+
+                if (profilePicture != null)
+                {
+                    using (var memoryStream = new MemoryStream())
+                    {
+                        await profilePicture.CopyToAsync(memoryStream);
+                        model.ProfilePicture = memoryStream.ToArray();
+                    }
+                }
+                else
+                {
+                    model.ProfilePicture = GetDefaultProfilePicture();
+                }
+
+                user.Password = BCrypt.Net.BCrypt.HashPassword(user.Password);
+                user.Role = 1;
+
+                _db.User.Add(user);
+                await _db.SaveChangesAsync();
+
+                model.Id = user.Id;
+
+                _db.Users.Add(model);
+                await _db.SaveChangesAsync();
+
+                var claims = new List<Claim>
+        {
+            new Claim(ClaimTypes.Name, user.Username),
+            new Claim(ClaimTypes.Role, user.Role.ToString())
+        };
+
+                var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
+
+                return Json(new { success = true, redirectUrl = returnUrl ?? Url.Action("Index") });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Помилка реєстрації." });
+            }
+        }
+
+
+
+
+        [Authorize(Roles = "1")]
+        public async Task<IActionResult> Profile()
+        {
+            if (User.Identity.IsAuthenticated)
+            {
+                var user = await _db.User.FirstOrDefaultAsync(u => u.Username == User.Identity.Name);
+                if (user == null)
+                {
+                    return NotFound();
+                }
+
+                var registration = await _db.Users.FirstOrDefaultAsync(r => r.Id == user.Id);
+                if (registration == null)
+                {
+                    return NotFound();
+                }
+
+                var orders = await _db.Orders
+            .Include(o => o.OrderItems)
+                .ThenInclude(oi => oi.Product)
+            .Where(o => o.UserId == user.Id)
+            .OrderByDescending(o => o.OrderDate)
+            .ToListAsync();
+
+                var comments = await _db.Comments
+             .Where(c => c.UserId == user.Id)
+             .Include(c => c.Product)
+             .OrderByDescending(c => c.DatePosted)
+             .ToListAsync();
+
+                if (registration?.BirthDate != null)
+                {
+                    var birthDate = registration.BirthDate;
+                    var today = DateOnly.FromDateTime(DateTime.Today);
+                    var age = today.Year - birthDate.Year;
+
+                    if (birthDate > today.AddYears(-age))
+                        age--;
+
+                    ViewData["Age"] = age;
+                    ViewData["BirthDate"] = birthDate.ToDateTime(TimeOnly.MinValue).ToString("dd MMMM yyyy");
+                }
+                else
+                {
+                    ViewData["Age"] = "N/A";
+                    ViewData["BirthDate"] = "N/A";
+                }
+
+
+                ViewData["Orders"] = orders;
+                ViewData["Comments"] = comments;
+                ViewData["Username"] = user.Username;
+                ViewData["ProfilePicture"] = registration.ProfilePicture;
+                ViewData["FirstName"] = registration.FirstName;
+                ViewData["LastName"] = registration.LastName;
+                ViewData["MiddleName"] = registration.MiddleName;
+                ViewData["BirthDate"] = registration.BirthDate;
+                ViewData["Phone"] = registration.Phone;
+                ViewData["Email"] = registration.Email;
+                ViewData["Address"] = registration.Address;
+                ViewData["Username"] = user.Username;
+                ViewData["Password"] = user.Password;
+                return View(orders);
+            }
+            return RedirectToAction("Login");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> EditProfile(Registration model, Login login, string Password, string ConfirmPassword)
+        {
+            if (!User.Identity.IsAuthenticated)
+            {
+                return RedirectToAction("Login");
+            }
+
+            var user = await _db.User.FirstOrDefaultAsync(u => u.Username == User.Identity.Name);
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            var registration = await _db.Users.FirstOrDefaultAsync(r => r.Id == user.Id);
+            if (registration == null)
+            {
+                return NotFound();
+            }
+
+            bool credentialsChanged = false;
+
+            registration.FirstName = model.FirstName;
+            registration.LastName = model.LastName;
+            registration.MiddleName = model.MiddleName;
+            registration.Email = model.Email;
+            registration.Phone = model.Phone;
+            registration.Address = model.Address;
+
+            if (!string.IsNullOrEmpty(login.Username) && login.Username != user.Username)
+            {
+                if (await _db.User.AnyAsync(u => u.Username == login.Username && u.Id != user.Id))
+                {
+                    return RedirectToAction("Profile");
+                }
+
+                var cartItems = await _db.CartItems.Where(c => c.UserId == user.Username).ToListAsync();
+                foreach (var item in cartItems)
+                {
+                    item.UserId = login.Username;
+                }
+
+                user.Username = login.Username;
+                credentialsChanged = true;
+            }
+
+            if (!string.IsNullOrEmpty(Password))
+            {
+                if (Password != ConfirmPassword)
+                {
+                    TempData["Error"] = "Passwords do not match.";
+                    return RedirectToAction("Profile");
+                }
+                //user.Password = BCrypt.Net.BCrypt.HashPassword(Password);
+                //credentialsChanged = true;
+
+                if (!IsPasswordStrongOrMedium(Password))
+                {
+                    TempData["Error"] = "Password is not strong enough. Please use at least a medium password.";
+                    return RedirectToAction("Profile");
+                }
+                user.Password = BCrypt.Net.BCrypt.HashPassword(Password);
+                credentialsChanged = true;
+            }
+
+            await _db.SaveChangesAsync();
+
+            if (credentialsChanged)
+            {
+                await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+                return RedirectToAction("Login", new { message = "Please login with your new credentials" });
+            }
+
+            return RedirectToAction("Profile");
+        }
+
+        private bool IsPasswordStrongOrMedium(string password)
+        {
+            // "Середній" пароль повинен бути довжиною не менше 8, мати букви, цифри
+            return password.Length >= 8 &&
+                   password.Any(char.IsLower) &&
+                   password.Any(char.IsUpper) &&
+                   password.Any(char.IsDigit);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> CheckUsernameAvailability(string username)
+        {
+            if (await _db.User.AnyAsync(u => u.Username == username))
+            {
+                return Json(new { isAvailable = false });
+            }
+            return Json(new { isAvailable = true });
+        }
+
+
+
+
         public IActionResult Contacts()
         {
             if (User.Identity.IsAuthenticated)
@@ -118,53 +371,7 @@ namespace ModelStore.Controllers
             return View(customers);
         }
 
-        [Authorize(Roles = "1")]
-        public async Task<IActionResult> Profile()
-        {
-            if (User.Identity.IsAuthenticated)
-            {
-                var user = await _db.User.FirstOrDefaultAsync(u => u.Username == User.Identity.Name);
-                if (user == null)
-                {
-                    return NotFound();
-                }
-
-                var registration = await _db.Users.FirstOrDefaultAsync(r => r.Id == user.Id);
-                if (registration == null)
-                {
-                    return NotFound();
-                }
-
-                var orders = await _db.Orders
-            .Include(o => o.OrderItems)
-                .ThenInclude(oi => oi.Product)
-            .Where(o => o.UserId == user.Id)
-            .OrderByDescending(o => o.OrderDate)
-            .ToListAsync();
-
-                var comments = await _db.Comments
-             .Where(c => c.UserId == user.Id)
-             .Include(c => c.Product)
-             .OrderByDescending(c => c.DatePosted)
-             .ToListAsync();
-
-                ViewData["Orders"] = orders;
-                ViewData["Comments"] = comments;
-                ViewData["Username"] = user.Username;
-                ViewData["ProfilePicture"] = registration.ProfilePicture;
-                ViewData["FirstName"] = registration.FirstName;
-                ViewData["LastName"] = registration.LastName;
-                ViewData["MiddleName"] = registration.MiddleName;
-                ViewData["BirthDate"] = registration.BirthDate;
-                ViewData["Phone"] = registration.Phone;
-                ViewData["Email"] = registration.Email;
-                ViewData["Address"] = registration.Address;
-                ViewData["Username"] = user.Username;
-                ViewData["Password"] = user.Password;
-                return View(orders);
-            }
-            return RedirectToAction("Login");
-        }
+        
 
         [HttpPost]
         [Authorize(Roles = "2")]
@@ -887,98 +1094,7 @@ namespace ModelStore.Controllers
             return RedirectToAction("Index");
         }
 
-        [HttpGet]
-        public IActionResult Register(string returnUrl = null)
-        {
-            if (User.Identity.IsAuthenticated)
-            {
-                return RedirectToAction("Index", "Home");
-            }
-
-            ViewData["ReturnUrl"] = returnUrl ?? Url.Action("Index", "Home");
-            return View();
-        }
-
-        private string GetPasswordStrength(string password)
-        {
-            bool hasUpperCase = password.Any(c => char.IsUpper(c));
-            bool hasLowerCase = password.Any(c => char.IsLower(c));
-            bool hasDigit = password.Any(c => char.IsDigit(c));
-            bool hasSpecialChar = password.Any(c => !char.IsLetterOrDigit(c));
-            if (password.Length < 8)
-            {
-                return "weak";
-            }
-            if (hasUpperCase && hasLowerCase && hasDigit && hasSpecialChar)
-            {
-                return "strong";
-            }
-            if ((hasUpperCase || hasLowerCase) && (hasDigit || hasSpecialChar))
-            {
-                return "medium";
-            }
-            return "weak";
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> Register(Registration model, IFormFile profilePicture, Login user, string returnUrl = null)
-        {
-            try
-            {
-                var passwordStrength = GetPasswordStrength(user.Password);
-
-                // Заборонити реєстрацію тільки якщо пароль слабкий
-                if (passwordStrength == "weak")
-                {
-                    return Json(new { success = false, message = "Введено некоректний пароль." });
-                }
-
-                var existingUser = await _db.User.FirstOrDefaultAsync(u => u.Username == user.Username);
-                if (existingUser != null)
-                {
-                    return Json(new { success = false, message = "Ім'я користувача вже зайняте." });
-                }
-
-                if (profilePicture != null)
-                {
-                    using (var memoryStream = new MemoryStream())
-                    {
-                        await profilePicture.CopyToAsync(memoryStream);
-                        model.ProfilePicture = memoryStream.ToArray();
-                    }
-                }
-                else
-                {
-                    model.ProfilePicture = GetDefaultProfilePicture();
-                }
-
-                user.Password = BCrypt.Net.BCrypt.HashPassword(user.Password);
-                user.Role = 1;
-
-                _db.User.Add(user);
-                await _db.SaveChangesAsync();
-
-                model.Id = user.Id;
-
-                _db.Users.Add(model);
-                await _db.SaveChangesAsync();
-
-                var claims = new List<Claim>
-        {
-            new Claim(ClaimTypes.Name, user.Username),
-            new Claim(ClaimTypes.Role, user.Role.ToString())
-        };
-
-                var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-                await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
-
-                return Json(new { success = true, redirectUrl = returnUrl ?? Url.Action("Index") });
-            }
-            catch (Exception ex)
-            {
-                return Json(new { success = false, message = "Помилка реєстрації." });
-            }
-        }
+        
 
         //public IActionResult Privacy()
         //{
@@ -1153,74 +1269,7 @@ namespace ModelStore.Controllers
             return RedirectToAction("Customers");
         }
 
-        [HttpPost]
-        public async Task<IActionResult> EditProfile(Registration model, Login login, string Password, string ConfirmPassword)
-        {
-            if (!User.Identity.IsAuthenticated)
-            {
-                return RedirectToAction("Login");
-            }
-
-            var user = await _db.User.FirstOrDefaultAsync(u => u.Username == User.Identity.Name);
-            if (user == null)
-            {
-                return NotFound();
-            }
-
-            var registration = await _db.Users.FirstOrDefaultAsync(r => r.Id == user.Id);
-            if (registration == null)
-            {
-                return NotFound();
-            }
-
-            bool credentialsChanged = false;
-
-            registration.FirstName = model.FirstName;
-            registration.LastName = model.LastName;
-            registration.MiddleName = model.MiddleName;
-            registration.Email = model.Email;
-            registration.Phone = model.Phone;
-            registration.Address = model.Address;
-
-            if (!string.IsNullOrEmpty(login.Username) && login.Username != user.Username)
-            {
-                if (await _db.User.AnyAsync(u => u.Username == login.Username && u.Id != user.Id))
-                {
-                    ModelState.AddModelError("Username", "This username is already taken");
-                    return View(model);
-                }
-
-                var cartItems = await _db.CartItems.Where(c => c.UserId == user.Username).ToListAsync();
-                foreach (var item in cartItems)
-                {
-                    item.UserId = login.Username;
-                }
-
-                user.Username = login.Username;
-                credentialsChanged = true;
-            }
-
-            if (!string.IsNullOrEmpty(Password))
-            {
-                if (Password != ConfirmPassword)
-                {
-                    ModelState.AddModelError("Password", "Passwords do not match");
-                    return View(model);
-                }
-                user.Password = BCrypt.Net.BCrypt.HashPassword(Password);
-                credentialsChanged = true;
-            }
-
-            await _db.SaveChangesAsync();
-
-            if (credentialsChanged)
-            {
-                await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-                return RedirectToAction("Login", new { message = "Please login with your new credentials" });
-            }
-
-            return RedirectToAction("Profile");
-        }
+        
 
         [HttpPost]
         [Authorize(Roles = "2")]
@@ -1402,15 +1451,7 @@ namespace ModelStore.Controllers
             return Redirect(Request.Headers["Referer"].ToString());
         }
 
-        [HttpGet]
-        public async Task<IActionResult> CheckUsernameAvailability(string username)
-        {
-            if (await _db.User.AnyAsync(u => u.Username == username))
-            {
-                return Json(new { isAvailable = false });
-            }
-            return Json(new { isAvailable = true });
-        }
+        
 
         [Authorize(Roles = "1")]
         public async Task<IActionResult> OrderInfo(int orderId)
