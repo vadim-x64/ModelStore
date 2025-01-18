@@ -1,0 +1,253 @@
+﻿.password-field {
+    position: relative;
+    display: flex;
+    align-items: stretch;
+}
+
+.toggle-password {
+    position: absolute;
+    right: 40px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #666;
+    display: flex;
+    align-items: center;
+    height: 100%;
+    padding: 0 5px;
+}
+
+.generate-password-btn {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: #666;
+    padding: 0 5px;
+}
+
+.generate-password-btn:hover,
+.toggle-password:hover {
+    color: #333;
+}
+
+.password-field input {
+    padding-right: 70px;
+    width: 100%;
+}
+
+#password-strength-container {
+    width: 100%;
+    background-color: #ddd;
+    border-radius: 5px;
+    margin-top: 5px;
+    height: 10px;
+}
+
+#password-strength-bar {
+    height: 100%;
+    border-radius: 5px;
+    transition: width 0.3s ease, background-color 0.3s ease;
+    width: 0%;
+}
+
+.error-modal {
+    position: fixed;
+    top: -100px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: red;
+    color: white;
+    padding: 15px;
+    border-radius: 10px;
+    font-size: 18px;
+    transition: all 0.5s ease-in-out;
+    z-index: 999;
+}
+
+.error-modal.show {
+    top: 20px;
+}
+
+.error-modal.hide {
+    top: -100px;
+}
+
+.profile-pic {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.hidden-input {
+    display: none;
+}
+
+.btn-trash {
+    border: none;
+    background: none;
+    cursor: pointer;
+}
+
+.btn-trash:hover {
+    color: red;
+}
+
+.trash-icon {
+    font-size: 1.5rem;
+}
+
+.profile-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.profile-header {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+
+.profile-info {
+    flex-grow: 1;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.form-grid div {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-grid input {
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.orders-section {
+    margin-top: 2rem;
+}
+
+.orders-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.order-card {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 1rem;
+    background: white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.order-card h5 {
+    margin: 0 0 0.5rem 0;
+    color: #333;
+}
+
+.comments-section {
+    margin-top: 2rem;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+}
+
+.comments-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background: #f8f9fa;
+    cursor: pointer;
+    border-radius: 8px 8px 0 0;
+}
+
+.comments-header h3 {
+    margin: 0;
+}
+
+.toggle-icon {
+    transition: transform 0.3s ease;
+}
+
+.comments-header.active .toggle-icon {
+    transform: rotate(180deg);
+}
+
+.comments-content {
+    display: none;
+    padding: 1rem;
+}
+
+.comments-content.active {
+    display: block;
+}
+
+.badge {
+    padding: 0.5em 1em;
+    border-radius: 4px;
+    font-size: 0.875rem;
+}
+
+.badge-warning {
+    background-color: #ffc107;
+    color: #000;
+}
+
+.badge-primary {
+    background-color: #007bff;
+    color: #fff;
+}
+
+.badge-info {
+    background-color: #17a2b8;
+    color: #fff;
+}
+
+.badge-success {
+    background-color: #28a745;
+    color: #fff;
+}
+
+.badge-secondary {
+    background-color: #6c757d;
+    color: #fff;
+}
+
+.btn {
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    font-size: 0.875rem;
+    transition: background-color 0.2s;
+}
+
+.btn-success {
+    background-color: #28a745;
+    color: white;
+}
+
+.btn-danger {
+    background-color: #dc3545;
+    color: white;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    color: white;
+}

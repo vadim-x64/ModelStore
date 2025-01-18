@@ -2,14 +2,10 @@
     ViewData["Title"] = "Profile";
 }
 
-<div id="error-message" class="error-modal"></div>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+<link href="~/css/profile.css" rel="stylesheet" asp-append-version="true" />
 
-@if (TempData["Error"] != null)
-{
-    <div class="alert alert-danger">
-        @TempData["Error"]
-    </div>
-}
+<div id="error-message" class="error-modal"></div>
 
 <div class="profile-container">
     <h2>Profile</h2>
@@ -25,7 +21,6 @@
                 <img id="profile-pic" src="data:image/png;base64,@Convert.ToBase64String((byte[])ViewData["ProfilePicture"])"
                      alt="Profile Picture" class="profile-pic" onclick="document.getElementById('file-input').click();" />
             }
-
             <form method="post" action="@Url.Action("ChangeProfilePicture", "Home")">
                 <input type="hidden" name="deletePicture" value="true" />
                 <button type="submit" class="btn-trash" title="Delete Profile Picture">
@@ -33,7 +28,6 @@
                 </button>
             </form>
         </div>
-
         <div class="profile-info">
             <form method="post" action="@Url.Action("EditProfile", "Home")" enctype="multipart/form-data">
                 <div class="form-grid">
@@ -49,12 +43,10 @@
                         <label>Middle Name:</label>
                         <input type="text" name="MiddleName" value="@ViewData["MiddleName"]" />
                     </div>
-
                     <div>
                         <label>Birth Date:</label>
                         <p>@ViewData["BirthDate"] (@ViewData["Age"] years old)</p>
                     </div>
-
                     <div>
                         <label>Phone:</label>
                         <input type="tel" name="Phone" value="@ViewData["Phone"]" required />
@@ -91,15 +83,6 @@
                             <i class="fas fa-eye toggle-password" data-target="confirmPassword"></i>
                         </div>
                     </div>
-                    <div id="password-hint">
-                        <p>Password must:</p>
-                        <ul>
-                            <li>Be at least 8 characters long</li>
-                            <li>Include uppercase and lowercase letters</li>
-                            <li>Include numbers</li>
-                            <li>(Optional for strong password) Special characters like !#$%</li>
-                        </ul>
-                    </div>
                 </div>
                 <div class="button-group">
                     <button type="submit" id="saveChangesBtn" class="btn btn-success" disabled>Save Changes</button>
@@ -109,291 +92,6 @@
             </form>
         </div>
     </div>
-
-    <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                const toggleButtons = document.querySelectorAll('.toggle-password');
-                const generatePasswordBtn = document.getElementById('generatePasswordBtn');
-                const newPasswordInput = document.getElementById('newPassword');
-                const errorMessage = document.getElementById('error-message');
-                const confirmPasswordInput = document.getElementById('confirmPassword');
-
-                toggleButtons.forEach(button => {
-                    button.addEventListener('click', function() {
-                        const targetId = this.getAttribute('data-target');
-                        const passwordInput = document.getElementById(targetId);
-
-                        if (passwordInput.type === 'password') {
-                            passwordInput.type = 'text';
-                            this.classList.remove('fa-eye');
-                            this.classList.add('fa-eye-slash');
-                        } else {
-                            passwordInput.type = 'password';
-                            this.classList.remove('fa-eye-slash');
-                            this.classList.add('fa-eye');
-                        }
-                    });
-                });
-
-                newPasswordInput.addEventListener('input', function() {
-                    const password = this.value;
-                    const validation = validatePassword(password);
-                    updatePasswordStrength(password);
-
-                    if (password.length > 0 && !validation.isLongEnough) {
-                        showError("Пароль має містити мінімум 8 символів");
-                    }
-                });
-
-                confirmPasswordInput.addEventListener('input', function() {
-                    if (this.value !== newPasswordInput.value) {
-                        showError("Паролі не співпадають");
-                    }
-                });
-
-                                       generatePasswordBtn.addEventListener('click', function () {
-            const password = generateStrongPassword();
-            newPasswordInput.value = password;
-            confirmPasswordInput.value = password;
-
-            // Виклик події input
-            newPasswordInput.dispatchEvent(new Event('input'));
-            confirmPasswordInput.dispatchEvent(new Event('input'));
-
-            // Розблокування Confirm Password
-            confirmPasswordInput.disabled = false;
-
-            // Активація кнопки Save Changes
-            saveButton.disabled = false;
-        });
-
-                function checkFormChanges() {
-            const hasPasswordChanges =
-                newPasswordInput.value !== '' &&
-                confirmPasswordInput.value === newPasswordInput.value;
-
-            const hasOtherChanges = inputs.some(i => i.value !== initialValues[i.name]);
-
-            saveButton.disabled = !(hasPasswordChanges || hasOtherChanges);
-        }
-
-                function validatePassword(password) {
-                    const regexLowerCase = /[a-zа-яїієґ]/;
-                    const regexUpperCase = /[A-ZА-ЯЇІЄҐ]/;
-                    const regexDigits = /\d/;
-                    const regexSpecial = /[!#$%^&*()_+={}\[\]:;'"<>,.?/\\|`~]/;
-                    return {
-                        isLongEnough: password.length >= 8,
-                        hasLowerCase: regexLowerCase.test(password),
-                        hasUpperCase: regexUpperCase.test(password),
-                        hasDigits: regexDigits.test(password),
-                        hasSpecial: regexSpecial.test(password),
-                    };
-                }
-
-                    form.addEventListener('submit', function(e) {
-                    if (newPasswordInput.value) {
-                        const strengthBar = document.getElementById('password-strength-bar');
-                        const backgroundColor = getComputedStyle(strengthBar).backgroundColor;
-
-                        if (backgroundColor === 'red' || backgroundColor === 'rgb(255, 0, 0)') {
-                            e.preventDefault();
-                            showError("Password is too weak. Please use at least a medium password.");
-                            return false;
-                        }
-                    }
-                });
-
-                function updatePasswordStrength(password) {
-                    const strengthBar = document.getElementById('password-strength-bar');
-                    const validation = validatePassword(password);
-
-                    if (!password) {
-                        strengthBar.style.width = '0%';
-                        strengthBar.style.backgroundColor = 'transparent';
-                        saveButton.disabled = false;
-                    } else if (validation.isLongEnough && validation.hasLowerCase &&
-                               validation.hasUpperCase && validation.hasDigits && validation.hasSpecial) {
-                        strengthBar.style.width = '100%';
-                        strengthBar.style.backgroundColor = 'green';
-                        saveButton.disabled = false;
-                    } else if (validation.isLongEnough && validation.hasLowerCase &&
-                               validation.hasUpperCase && validation.hasDigits) {
-                        strengthBar.style.width = '70%';
-                        strengthBar.style.backgroundColor = 'orange';
-                        saveButton.disabled = false;
-                    } else if (validation.isLongEnough) {
-                        strengthBar.style.width = '35%';
-                        strengthBar.style.backgroundColor = 'red';
-                        saveButton.disabled = true;
-                    } else {
-                        strengthBar.style.width = '0%';
-                        strengthBar.style.backgroundColor = 'transparent';
-                        saveButton.disabled = true;
-                    }
-                }
-
-                function showError(message) {
-                    errorMessage.innerText = message;
-                    errorMessage.classList.add('show');
-                    setTimeout(() => {
-                        errorMessage.classList.remove('show');
-                    }, 3000);
-                }
-
-                function generateStrongPassword() {
-                    const length = 16;
-                    const charsets = {
-                        lowercase: "abcdefghijklmnopqrstuvwxyz",
-                        uppercase: "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
-                        digits: "0123456789",
-                        special: "!#$%^&*()_+[]{}|;:,.<>?/",
-                        ukrainian: "аабвгдеєєжзиіїклмнопрстуфхцчшщьюяАБВГДЕЄЖЗИЇКЛМНОПРСТУФХЦЧШЩЬЮЯ"
-                    };
-                    const allCharsets = Object.values(charsets).join('');
-                    let password = '';
-                    Object.values(charsets).forEach(charset => {
-                        password += getRandomChar(charset);
-                    });
-
-                    for (let i = password.length; i < length; i++) {
-                        password += getRandomChar(allCharsets);
-                    }
-                    return shuffleString(password);
-                }
-
-                function getRandomChar(charset) {
-                    return charset[Math.floor(Math.random() * charset.length)];
-                }
-
-                function shuffleString(str) {
-                    const arr = str.split('');
-                    for (let i = arr.length - 1; i > 0; i--) {
-                        const j = Math.floor(Math.random() * (i + 1));
-                        [arr[i], arr[j]] = [arr[j], arr[i]];
-                    }
-                    return arr.join('');
-                }
-            });
-
-        document.addEventListener('DOMContentLoaded', function() {
-            const form = document.querySelector('form');
-            const saveButton = document.getElementById("saveChangesBtn");
-            const inputs = Array.from(document.querySelectorAll("form input"));
-            const newPasswordInput = document.querySelector("input[name='Password']");
-            const confirmPasswordInput = document.querySelector("input[name='ConfirmPassword']");
-            const usernameField = document.querySelector("input[name='Username']");
-
-            const initialValues = inputs.reduce((acc, input) => {
-                acc[input.name] = input.value;
-                return acc;
-            }, {});
-
-            confirmPasswordInput.disabled = true;
-
-            newPasswordInput.addEventListener("input", function() {
-                confirmPasswordInput.disabled = !newPasswordInput.value;
-            });
-
-                    inputs.forEach(input => {
-            input.addEventListener("input", () => {
-                const hasChanges = inputs.some(i => i.value !== initialValues[i.name]) ||
-                                   newPasswordInput.value !== '' ||
-                                   confirmPasswordInput.value !== '';
-                saveButton.disabled = !hasChanges;
-            });
-        });
-
-            usernameField.addEventListener('blur', function() {
-                const username = this.value;
-
-                if (username.trim() === initialValues['Username']) {
-                    return;
-                }
-
-                if (username.trim() === '') {
-                    return;
-                }
-
-                fetch(`/Home/CheckUsernameAvailability?username=${encodeURIComponent(username)}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        if (!data.isAvailable) {
-                            alert('Таке ім\'я користувача вже зайняте');
-                        }
-                    })
-                    .catch(() => {
-                        alert('Помилка перевірки');
-                    });
-            });
-
-            });
-
-            document.addEventListener('DOMContentLoaded', function() {
-                document.querySelectorAll("form input").forEach(input => {
-                    input.addEventListener("contextmenu", event => {
-                        event.preventDefault();
-                    });
-                });
-
-                const nameFields = [
-                    "FirstName",
-                    "LastName",
-                    "MiddleName"
-                ];
-
-                nameFields.forEach(name => {
-                    const field = document.querySelector(`input[name='${name}']`);
-                    if (field) {
-                        field.addEventListener("input", () => {
-                            field.value = field.value.replace(/[^a-zA-Zа-яА-ЯіІїЇєЄґҐ\s]/g, "");
-                        });
-                    }
-                });
-
-                const phoneField = document.querySelector("input[name='Phone']");
-                if (phoneField) {
-                    phoneField.addEventListener("input", () => {
-                        let value = phoneField.value.replace(/[^\d+]/g, "");
-
-                        value = value.replace(/(?!^\+)\+/g, "");
-
-                        if (value.includes("+") && value.indexOf("+") !== 0) {
-                            value = value.replace(/\+/g, "");
-                        }
-
-                        if (!value.startsWith("+380")) {
-                            value = value.replace(/\+380/g, "");
-                        }
-
-                        if (value.length > 13) {
-                            value = value.slice(0, 13);
-                        }
-
-                        if (value.length !== 13 || !value.startsWith("+380")) {
-                            phoneField.setCustomValidity("Неправильний формат телефону. Формат: +380ххххххххх");
-                        } else {
-                            phoneField.setCustomValidity("");
-                        }
-
-                        phoneField.value = value;
-                    });
-                }
-            });
-
-            document.addEventListener('DOMContentLoaded', function () {
-            const commentsHeader = document.querySelector('.comments-header');
-            const commentsContent = document.querySelector('.comments-content');
-
-            if (commentsHeader && commentsContent) {
-                commentsHeader.addEventListener('click', () => {
-                    commentsContent.classList.toggle('active');
-                    commentsHeader.classList.toggle('active');
-                });
-            }
-        });
-    </script>
-
     <div class="orders-section">
         <h3>Your Orders</h3>
         @if (ViewData["Orders"] != null)
@@ -418,7 +116,6 @@
                                     _ => "badge-secondary"
                                 })">@(order.Status.ToString() == "ReceivedByCustomer" ? "Received" : order.Status.ToString())</span>
                             </p>
-
                             @if (order.Status == OrderStatus.Completed)
                             {
                                 <form asp-action="ConfirmOrderReceived" method="post">
@@ -428,7 +125,6 @@
                                     </button>
                                 </form>
                             }
-
                             @if (order.Status == OrderStatus.Pending || order.Status == OrderStatus.Accepted)
                             {
                                 <form method="post" action="/Home/RequestOrderCancellation">
@@ -462,7 +158,6 @@
             <p>No orders found.</p>
         }
     </div>
-
     <div class="comments-section">
         <div class="comments-header">
             <h3>Your Comments</h3>
@@ -503,260 +198,4 @@
     </div>
 </div>
 
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
-
-
-
-<style>
-    .password-field {
-        position: relative;
-        display: flex;
-        align-items: stretch;
-    }
-
-    .toggle-password {
-        position: absolute;
-        right: 40px;
-        top: 50%;
-        transform: translateY(-50%);
-        cursor: pointer;
-        color: #666;
-        display: flex;
-        align-items: center;
-        height: 100%;
-        padding: 0 5px;
-    }
-
-    .generate-password-btn {
-        position: absolute;
-        right: 10px;
-        top: 50%;
-        transform: translateY(-50%);
-        background: transparent;
-        border: none;
-        cursor: pointer;
-        color: #666;
-        padding: 0 5px;
-    }
-
-        .generate-password-btn:hover,
-        .toggle-password:hover {
-            color: #333;
-        }
-
-    .password-field input {
-        padding-right: 70px;
-        width: 100%;
-    }
-
-    #password-strength-container {
-        width: 100%;
-        background-color: #ddd;
-        border-radius: 5px;
-        margin-top: 5px;
-        height: 10px;
-    }
-
-    #password-strength-bar {
-        height: 100%;
-        border-radius: 5px;
-        transition: width 0.3s ease, background-color 0.3s ease;
-        width: 0%;
-    }
-
-    .error-modal {
-        position: fixed;
-        top: -100px;
-        left: 50%;
-        transform: translateX(-50%);
-        background-color: red;
-        color: white;
-        padding: 15px;
-        border-radius: 10px;
-        font-size: 18px;
-        transition: all 0.5s ease-in-out;
-        z-index: 999;
-        width: auto;
-        text-align: center;
-    }
-
-        .error-modal.show {
-            top: 20px;
-        }
-
-    .profile-pic {
-        width: 150px;
-        height: 150px;
-        border-radius: 50%;
-        object-fit: cover;
-    }
-
-    .hidden-input {
-        display: none;
-    }
-
-    .btn-trash {
-        border: none;
-        background: none;
-        cursor: pointer;
-    }
-
-        .btn-trash:hover {
-            color: red;
-        }
-
-    .trash-icon {
-        font-size: 1.5rem;
-    }
-
-    .profile-container {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 20px;
-    }
-
-    .profile-header {
-        display: flex;
-        align-items: center;
-        gap: 2rem;
-        margin-bottom: 2rem;
-    }
-
-    .profile-info {
-        flex-grow: 1;
-    }
-
-    .form-grid {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 1rem;
-        margin-bottom: 2rem;
-    }
-
-        .form-grid div {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .form-grid input {
-            padding: 0.5rem;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
-
-    .orders-section {
-        margin-top: 2rem;
-    }
-
-    .orders-grid {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 1rem;
-        margin-bottom: 2rem;
-    }
-
-    .order-card {
-        border: 1px solid #ddd;
-        border-radius: 8px;
-        padding: 1rem;
-        background: white;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-
-        .order-card h5 {
-            margin: 0 0 0.5rem 0;
-            color: #333;
-        }
-
-    .comments-section {
-        margin-top: 2rem;
-        border: 1px solid #ddd;
-        border-radius: 8px;
-    }
-
-    .comments-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 1rem;
-        background: #f8f9fa;
-        cursor: pointer;
-        border-radius: 8px 8px 0 0;
-    }
-
-        .comments-header h3 {
-            margin: 0;
-        }
-
-    .toggle-icon {
-        transition: transform 0.3s ease;
-    }
-
-    .comments-header.active .toggle-icon {
-        transform: rotate(180deg);
-    }
-
-    .comments-content {
-        display: none;
-        padding: 1rem;
-    }
-
-        .comments-content.active {
-            display: block;
-        }
-
-    .badge {
-        padding: 0.5em 1em;
-        border-radius: 4px;
-        font-size: 0.875rem;
-    }
-
-    .badge-warning {
-        background-color: #ffc107;
-        color: #000;
-    }
-
-    .badge-primary {
-        background-color: #007bff;
-        color: #fff;
-    }
-
-    .badge-info {
-        background-color: #17a2b8;
-        color: #fff;
-    }
-
-    .badge-success {
-        background-color: #28a745;
-        color: #fff;
-    }
-
-    .badge-secondary {
-        background-color: #6c757d;
-        color: #fff;
-    }
-
-    .btn {
-        padding: 0.5rem 1rem;
-        border-radius: 4px;
-        border: none;
-        cursor: pointer;
-        font-size: 0.875rem;
-        transition: background-color 0.2s;
-    }
-
-    .btn-success {
-        background-color: #28a745;
-        color: white;
-    }
-
-    .btn-danger {
-        background-color: #dc3545;
-        color: white;
-    }
-
-    .btn-secondary {
-        background-color: #6c757d;
-        color: white;
-    }
-</style>
+<script src="~/js/profile.js"></script>

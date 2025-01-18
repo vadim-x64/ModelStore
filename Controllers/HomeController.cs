@@ -89,10 +89,10 @@ namespace ModelStore.Controllers
                 await _db.SaveChangesAsync();
 
                 var claims = new List<Claim>
-        {
-            new Claim(ClaimTypes.Name, user.Username),
-            new Claim(ClaimTypes.Role, user.Role.ToString())
-        };
+                {
+                    new Claim(ClaimTypes.Name, user.Username),
+                    new Claim(ClaimTypes.Role, user.Role.ToString())
+                };
 
                 var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
                 await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
@@ -104,9 +104,6 @@ namespace ModelStore.Controllers
                 return Json(new { success = false, message = "Помилка реєстрації." });
             }
         }
-
-
-
 
         [Authorize(Roles = "1")]
         public async Task<IActionResult> Profile()
@@ -126,17 +123,17 @@ namespace ModelStore.Controllers
                 }
 
                 var orders = await _db.Orders
-            .Include(o => o.OrderItems)
-                .ThenInclude(oi => oi.Product)
-            .Where(o => o.UserId == user.Id)
-            .OrderByDescending(o => o.OrderDate)
-            .ToListAsync();
+                .Include(o => o.OrderItems)
+                    .ThenInclude(oi => oi.Product)
+                .Where(o => o.UserId == user.Id)
+                .OrderByDescending(o => o.OrderDate)
+                .ToListAsync();
 
                 var comments = await _db.Comments
-             .Where(c => c.UserId == user.Id)
-             .Include(c => c.Product)
-             .OrderByDescending(c => c.DatePosted)
-             .ToListAsync();
+                .Where(c => c.UserId == user.Id)
+                .Include(c => c.Product)
+                .OrderByDescending(c => c.DatePosted)
+                .ToListAsync();
 
                 if (registration?.BirthDate != null)
                 {
@@ -155,7 +152,6 @@ namespace ModelStore.Controllers
                     ViewData["Age"] = "N/A";
                     ViewData["BirthDate"] = "N/A";
                 }
-
 
                 ViewData["Orders"] = orders;
                 ViewData["Comments"] = comments;
@@ -225,15 +221,12 @@ namespace ModelStore.Controllers
             {
                 if (Password != ConfirmPassword)
                 {
-                    TempData["Error"] = "Passwords do not match.";
                     return RedirectToAction("Profile");
                 }
-                //user.Password = BCrypt.Net.BCrypt.HashPassword(Password);
-                //credentialsChanged = true;
 
                 if (!IsPasswordStrongOrMedium(Password))
                 {
-                    TempData["Error"] = "Password is not strong enough. Please use at least a medium password.";
+
                     return RedirectToAction("Profile");
                 }
                 user.Password = BCrypt.Net.BCrypt.HashPassword(Password);
@@ -253,11 +246,7 @@ namespace ModelStore.Controllers
 
         private bool IsPasswordStrongOrMedium(string password)
         {
-            // "Середній" пароль повинен бути довжиною не менше 8, мати букви, цифри
-            return password.Length >= 8 &&
-                   password.Any(char.IsLower) &&
-                   password.Any(char.IsUpper) &&
-                   password.Any(char.IsDigit);
+            return password.Length >= 8 && password.Any(char.IsLower) && password.Any(char.IsUpper) && password.Any(char.IsDigit);
         }
 
         [HttpGet]
@@ -269,9 +258,6 @@ namespace ModelStore.Controllers
             }
             return Json(new { isAvailable = true });
         }
-
-
-
 
         public IActionResult Contacts()
         {
@@ -305,7 +291,6 @@ namespace ModelStore.Controllers
                     }
                 }
             }
-
             return View();
         }
 
@@ -360,7 +345,7 @@ namespace ModelStore.Controllers
                                                o.Id,
                                                o.OrderDate,
                                                o.Status,
-                                               IsPendingOrder = o.Status == OrderStatus.Pending, // Нове поле
+                                               IsPendingOrder = o.Status == OrderStatus.Pending,
                                                IsCancellationRequestedOrder = o.Status == OrderStatus.CancellationRequested,
                                                o.PaymentMethod,
                                                o.DeliveryMethod,
@@ -370,8 +355,6 @@ namespace ModelStore.Controllers
                                    }).ToListAsync();
             return View(customers);
         }
-
-        
 
         [HttpPost]
         [Authorize(Roles = "2")]
@@ -393,7 +376,7 @@ namespace ModelStore.Controllers
             if (status == OrderStatus.CancellationRequested)
             {
                 order.Status = OrderStatus.CancellationRequested;
-                order.LastUpdated = DateTime.Now; // Оновити час
+                order.LastUpdated = DateTime.Now;
                 await _db.SaveChangesAsync();
             }
 
@@ -616,11 +599,11 @@ namespace ModelStore.Controllers
                 OrderDate = DateTime.Now,
                 PaymentMethod = paymentMethod,
                 DeliveryMethod = deliveryMethod,
-                FirstName = firstname ?? registration.FirstName, // Якщо ім'я не передано, використовуємо з Registration
+                FirstName = firstname ?? registration.FirstName,
                 LastName = lastname ?? registration.LastName,
                 Email = email ?? registration.Email,
                 Phone = phone ?? registration.Phone,
-                Address = address ?? registration.Address, // Якщо адреса не передана, використовуємо з Registration
+                Address = address ?? registration.Address,
                 Status = OrderStatus.Pending,
                 LastUpdated = DateTime.Now,
                 OrderItems = cartItems.Select(ci => new OrderItem
@@ -1094,31 +1077,6 @@ namespace ModelStore.Controllers
             return RedirectToAction("Index");
         }
 
-        
-
-        //public IActionResult Privacy()
-        //{
-        //    if (User.Identity.IsAuthenticated)
-        //    {
-        //        var user = _db.User.FirstOrDefault(u => u.Username == User.Identity.Name);
-        //        if (user != null)
-        //        {
-        //            var profile = _db.Users.FirstOrDefault(r => r.Id == user.Id);
-        //            if (profile != null)
-        //            {
-        //                ViewData["ProfilePicture"] = profile.ProfilePicture;
-        //            }
-        //        }
-        //    }
-        //    return View();
-        //}
-
-        //[ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        //public IActionResult Error()
-        //{
-        //    return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-        //}
-
         [HttpPost]
         [Authorize(Roles = "2")]
         public async Task<IActionResult> DeleteCustomer(int id)
@@ -1268,8 +1226,6 @@ namespace ModelStore.Controllers
             await _db.SaveChangesAsync();
             return RedirectToAction("Customers");
         }
-
-        
 
         [HttpPost]
         [Authorize(Roles = "2")]
@@ -1450,8 +1406,6 @@ namespace ModelStore.Controllers
 
             return Redirect(Request.Headers["Referer"].ToString());
         }
-
-        
 
         [Authorize(Roles = "1")]
         public async Task<IActionResult> OrderInfo(int orderId)
