@@ -30,7 +30,6 @@ function validatePassword(password) {
 function updatePasswordStrength(password) {
     const strengthBar = document.getElementById('password-strength-bar');
     const { isLongEnough, hasLowerCase, hasUpperCase, hasDigits, hasSpecial } = validatePassword(password);
-
     if (!password) {
         strengthBar.style.width = '0%';
         strengthBar.style.backgroundColor = 'transparent';
@@ -54,27 +53,21 @@ function formatPhoneNumber(input) {
     if (phoneField) {
         phoneField.addEventListener("input", () => {
             let value = phoneField.value.replace(/[^\d+]/g, "");
-
             value = value.replace(/(?!^\+)\+/g, "");
-
             if (value.includes("+") && value.indexOf("+") !== 0) {
                 value = value.replace(/\+/g, "");
             }
-
             if (!value.startsWith("+380")) {
                 value = value.replace(/\+380/g, "");
             }
-
             if (value.length > 13) {
                 value = value.slice(0, 13);
             }
-
             if (value.length !== 13 || !value.startsWith("+380")) {
                 phoneField.setCustomValidity("Неправильний формат телефону. Формат: +380ххххххххх");
             } else {
                 phoneField.setCustomValidity("");
             }
-
             phoneField.value = value;
         });
     }
@@ -91,7 +84,6 @@ function setMaxDateForBirthDate() {
 }
 
 document.addEventListener('DOMContentLoaded', setMaxDateForBirthDate);
-
 document.getElementById('showPassword').addEventListener('change', function () {
     const passwordField = document.getElementById('Password');
     setPasswordFieldType(passwordField, this.checked ? 'text' : 'password');
@@ -118,17 +110,14 @@ document.querySelectorAll('input').forEach(input => {
 
 document.querySelector('.registration-form').addEventListener('submit', function (e) {
     e.preventDefault();
-
     const password = document.getElementById('Password').value;
     const errorMessage = document.getElementById('error-message');
     const { isLongEnough, hasLowerCase, hasUpperCase, hasDigits, hasSpecial } = validatePassword(password);
-
     if (!(isLongEnough && hasLowerCase && hasUpperCase && hasDigits && hasSpecial)) {
         errorMessage.innerText = "Пароль має містити мінімум 8 символів, великі та малі літери, числа і спеціальні символи.";
         toggleVisibility(errorMessage, true, 5000);
         return;
     }
-
     const formData = new FormData(this);
     fetch('/Home/Register', {
         method: 'POST',
@@ -163,7 +152,6 @@ function generateStrongPassword() {
     Object.values(charsets).forEach(charset => {
         password += getRandomChar(charset);
     });
-
     for (let i = password.length; i < length; i++) {
         password += getRandomChar(allCharsets);
     }

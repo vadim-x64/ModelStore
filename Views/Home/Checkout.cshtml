@@ -40,11 +40,9 @@
                 </tr>
             </thead>
             <tbody>
-
                 @foreach (var item in Model.CartItems)
 
                 {
-
                     <tr>
                         <td>
                             <img src="data:image/jpeg;base64,@Convert.ToBase64String(item.Product.Photo)"
@@ -55,18 +53,14 @@
                         <td>@item.Product.Price.ToString("C")</td>
                         <td>@item.Quantity</td>
                         <td>@((item.Quantity * item.Product.Price).ToString("C"))</td>
-
-
                     </tr>
                     <tr>
                         <td colspan="4" class="text-right"><strong>Cart Total:</strong></td>
                         <td>@Model.CartItems.Sum(item => item.Quantity * item.Product.Price).ToString("C")</td>
                     </tr>
                 }
-
             </tbody>
         </table>
-
         <h3>Payment & Delivery</h3>
         <div class="payment-delivery">
             <div class="form-group">
@@ -84,7 +78,6 @@
                 </select>
             </div>
         </div>
-
         <button type="submit" class="submit-order">Place Order</button>
     </form>
 </div>

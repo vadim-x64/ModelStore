@@ -28,26 +28,26 @@
     transition: box-shadow 0.3s ease;
 }
 
-    .contact-card:hover {
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.7);
-    }
+.contact-card:hover {
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.7);
+}
 
-    .contact-card i {
-        font-size: 44px;
-        margin-bottom: 20px;
-        color: #F0D400;
-    }
+.contact-card i {
+    font-size: 44px;
+    margin-bottom: 20px;
+    color: #F0D400;
+}
 
-    .contact-card h3 {
-        font-size: 24px;
-        margin-bottom: 10px;
-    }
+.contact-card h3 {
+    font-size: 24px;
+    margin-bottom: 10px;
+}
 
-    .contact-card p {
-        font-size: 14px;
-        margin-bottom: 15px;
-        color: #E2E7EF;
-    }
+.contact-card p {
+    font-size: 14px;
+    margin-bottom: 15px;
+    color: #E2E7EF;
+}
 
 .social-icons {
     display: flex;
@@ -56,6 +56,6 @@
     margin-top: 50px;
 }
 
-    .social-icons a {
-        color: white;
-    }
+.social-icons a {
+    color: white;
+}

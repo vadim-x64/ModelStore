@@ -1,7 +1,6 @@
 ﻿@model ModelStore.Models.Order
 
 <h2>Order #@Model.Id Details</h2>
-
 <h3>Customer Information</h3>
 <p><strong>Name:</strong> @Model.FirstName @Model.LastName</p>
 <p><strong>Phone:</strong> @(string.IsNullOrEmpty(Model.Phone) ? Model.User.Phone : Model.Phone)</p>
@@ -9,7 +8,6 @@
 <p><strong>Address:</strong> @(string.IsNullOrEmpty(Model.Address) ? Model.User.Address : Model.Address)</p>
 <p><strong>Payment Method:</strong> @Model.PaymentMethod</p>
 <p><strong>Delivery Method:</strong> @Model.DeliveryMethod</p>
-
 <h3>Order Items</h3>
 <table class="table">
     <thead>
@@ -43,7 +41,7 @@
     </tfoot>
 </table>
 
-                <style>
+<style>
     .table {
         width: 100%;
         border-collapse: collapse;
@@ -53,44 +51,44 @@
         overflow: hidden;
     }
 
-        .table thead {
-            background-color: #f8f9fa;
-        }
+    .table thead {
+        background-color: #f8f9fa;
+    }
 
-        .table th {
-            padding: 15px;
-            text-align: left;
-            font-weight: 600;
-            color: #495057;
-            border-bottom: 2px solid #dee2e6;
-        }
+    .table th {
+        padding: 15px;
+        text-align: left;
+        font-weight: 600;
+        color: #495057;
+        border-bottom: 2px solid #dee2e6;
+    }
 
-        .table td {
-            padding: 12px 15px;
-            vertical-align: middle;
-            border-bottom: 1px solid #dee2e6;
-        }
+    .table td {
+        padding: 12px 15px;
+        vertical-align: middle;
+        border-bottom: 1px solid #dee2e6;
+    }
 
-        .table tbody tr:hover {
-            background-color: #f8f9fa;
-            transition: background-color 0.2s ease;
-        }
+    .table tbody tr:hover {
+        background-color: #f8f9fa;
+        transition: background-color 0.2s ease;
+    }
 
-        .table img {
-            border-radius: 4px;
-            object-fit: cover;
-        }
+    .table img {
+        border-radius: 4px;
+        object-fit: cover;
+    }
 
-        .table tfoot {
-            background-color: #f8f9fa;
-        }
+    .table tfoot {
+        background-color: #f8f9fa;
+    }
 
-            .table tfoot tr td {
-                border-top: 2px solid #dee2e6;
-                font-weight: bold;
-            }
+    .table tfoot tr td {
+        border-top: 2px solid #dee2e6;
+        font-weight: bold;
+    }
 
     .text-end {
         text-align: right;
     }
-                </style>
+</style>

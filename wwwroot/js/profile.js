@@ -67,7 +67,6 @@
         if (newPasswordInput.value) {
             const strengthBar = document.getElementById('password-strength-bar');
             const backgroundColor = getComputedStyle(strengthBar).backgroundColor;
-
             if (backgroundColor === 'red' || backgroundColor === 'rgb(255, 0, 0)') {
                 e.preventDefault();
                 showError("Password is too weak. Please use at least a medium password.");
@@ -79,7 +78,6 @@
     function updatePasswordStrength(password) {
         const strengthBar = document.getElementById('password-strength-bar');
         const validation = validatePassword(password);
-
         if (!password) {
             strengthBar.style.width = '0%';
             strengthBar.style.backgroundColor = 'transparent';
@@ -122,14 +120,11 @@
             special: "!#$%^&*()_+[]{}|;:,.<>?/",
             ukrainian: "аабвгдеєєжзиіїклмнопрстуфхцчшщьюяАБВГДЕЄЖЗИЇКЛМНОПРСТУФХЦЧШЩЬЮЯ"
         };
-
         const allCharsets = Object.values(charsets).join('');
         let password = '';
-
         Object.values(charsets).forEach(charset => {
             password += getRandomChar(charset);
         });
-
         for (let i = password.length; i < length; i++) {
             password += getRandomChar(allCharsets);
         }
@@ -142,7 +137,6 @@
 
     function shuffleString(str) {
         const arr = str.split('');
-
         for (let i = arr.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
             [arr[i], arr[j]] = [arr[j], arr[i]];
@@ -164,7 +158,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }, {});
 
     confirmPasswordInput.disabled = true;
-
     newPasswordInput.addEventListener("input", function () {
         confirmPasswordInput.disabled = !newPasswordInput.value;
     });
@@ -180,11 +173,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
     usernameField.addEventListener('blur', function () {
         const username = this.value;
-
         if (username.trim() === initialValues['Username'] && username.trim() === '') {
             return;
         }
-
         fetch(`/Home/CheckUsernameAvailability?username=${encodeURIComponent(username)}`)
             .then(response => response.json())
             .then(data => {
@@ -222,25 +213,19 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     const phoneField = document.querySelector("input[name='Phone']");
-
     if (phoneField) {
         phoneField.addEventListener("input", () => {
-
             let value = phoneField.value.replace(/[^\d+]/g, "");
             value = value.replace(/(?!^\+)\+/g, "");
-
             if (value.includes("+") && value.indexOf("+") !== 0) {
                 value = value.replace(/\+/g, "");
             }
-
             if (!value.startsWith("+380")) {
                 value = value.replace(/\+380/g, "");
             }
-
             if (value.length > 13) {
                 value = value.slice(0, 13);
             }
-
             if (value.length !== 13 || !value.startsWith("+380")) {
                 phoneField.setCustomValidity("Неправильний формат телефону. Формат: +380ххххххххх");
             } else {
@@ -254,7 +239,6 @@ document.addEventListener('DOMContentLoaded', function () {
 document.addEventListener('DOMContentLoaded', function () {
     const commentsHeader = document.querySelector('.comments-header');
     const commentsContent = document.querySelector('.comments-content');
-
     if (commentsHeader && commentsContent) {
         commentsHeader.addEventListener('click', () => {
             commentsContent.classList.toggle('active');

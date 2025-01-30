@@ -6,7 +6,6 @@
 <link href="~/css/profile.css" rel="stylesheet" asp-append-version="true" />
 
 <div id="error-message" class="error-modal"></div>
-
 <div class="profile-container">
     <h2>Profile</h2>
     <div id="error-message" class="error-modal"></div>
@@ -15,7 +14,6 @@
             <form id="profile-pic-form" enctype="multipart/form-data" method="post" action="@Url.Action("ChangeProfilePicture", "Home")">
                 <input id="file-input" type="file" name="profilePicture" class="hidden-input" accept="image/*" onchange="this.form.submit();" />
             </form>
-
             @if (ViewData["ProfilePicture"] != null)
             {
                 <img id="profile-pic" src="data:image/png;base64,@Convert.ToBase64String((byte[])ViewData["ProfilePicture"])"
@@ -138,7 +136,6 @@
                             {
                                 <span class="text-warning">Запит на скасування відправлено</span>
                             }
-
                             <p>Order Date: @order.OrderDate.ToString("g")</p>
                             @if (order.LastUpdated.HasValue)
                             {

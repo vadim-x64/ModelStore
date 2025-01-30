@@ -3,7 +3,6 @@
     ViewData["Title"] = "Категорії";
 }
 <h2>Категорії</h2>
-
 @if (Model.Any())
 {
     <div class="d-flex justify-content-end mb-3">
@@ -11,7 +10,6 @@
             Видалити обрані категорії
         </button>
     </div>
-
     <form id="categoriesForm" method="post" enctype="multipart/form-data" action="@Url.Action("EditCategories", "Home")">
         <div class="row">
             @foreach (var category in Model)
@@ -47,9 +45,7 @@
             Зберегти всі зміни
         </button>
     </form>
-
-    <form id="deleteForm" method="post" action="@Url.Action("DeleteCategories", "Home")">
-    </form>
+    <form id="deleteForm" method="post" action="@Url.Action("DeleteCategories", "Home")"></form>
 }
 
 @section Scripts {
@@ -62,9 +58,7 @@
             const deleteSelectedBtn = document.getElementById('deleteSelectedBtn');
             const categoryGroups = document.querySelectorAll('.category-edit-group');
             const checkboxes = document.querySelectorAll('.category-checkbox');
-
             let originalValues = new Map();
-
             categoryGroups.forEach(group => {
                 const categoryId = group.dataset.categoryId;
                 const nameInput = group.querySelector('.name-input');
@@ -76,18 +70,15 @@
 
             function checkForChanges() {
                 let hasChanges = false;
-
                 categoryGroups.forEach(group => {
                     const categoryId = group.dataset.categoryId;
                     const original = originalValues.get(categoryId);
                     const nameInput = group.querySelector('.name-input');
                     const photoInput = group.querySelector('.photo-input');
-
                     if (nameInput.value !== original.name || photoInput.files.length > 0) {
                         hasChanges = true;
                     }
                 });
-
                 saveAllBtn.disabled = !hasChanges;
             }
 
@@ -98,10 +89,8 @@
 
             deleteSelectedBtn.addEventListener('click', function(e) {
                 e.preventDefault();
-
                 const checkedBoxes = document.querySelectorAll('.category-checkbox:checked');
                 if (checkedBoxes.length === 0) return;
-
                 if (confirm('Ви впевнені, що хочете видалити обрані категорії? Всі товари в цих категоріях також будуть видалені.')) {
                     const form = document.getElementById('deleteForm');
                     checkedBoxes.forEach(checkbox => {
@@ -114,7 +103,6 @@
                     form.submit();
                 }
             });
-
             categoriesForm.addEventListener('change', checkForChanges);
             categoriesForm.addEventListener('input', checkForChanges);
             checkboxes.forEach(checkbox => {

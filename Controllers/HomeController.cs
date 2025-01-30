@@ -39,7 +39,6 @@ namespace ModelStore.Controllers
             bool hasDigit = password.Any(char.IsDigit);
             bool hasSpecialChar = password.Any(c => !char.IsLetterOrDigit(c));
             bool isLongEnough = password.Length >= 8;
-
             if (isLongEnough && hasUpperCase && hasLowerCase && hasDigit && hasSpecialChar)
             {
                 return "strong";
@@ -57,13 +56,11 @@ namespace ModelStore.Controllers
                 {
                     return Json(new { success = false, message = "Введено некоректний пароль." });
                 }
-
                 var existingUser = await _db.User.FirstOrDefaultAsync(u => u.Username == user.Username);
                 if (existingUser != null)
                 {
                     return Json(new { success = false, message = "Ім'я користувача вже зайняте." });
                 }
-
                 if (profilePicture != null)
                 {
                     using (var memoryStream = new MemoryStream())
@@ -76,27 +73,20 @@ namespace ModelStore.Controllers
                 {
                     model.ProfilePicture = GetDefaultProfilePicture();
                 }
-
                 user.Password = BCrypt.Net.BCrypt.HashPassword(user.Password);
                 user.Role = 1;
-
                 _db.User.Add(user);
                 await _db.SaveChangesAsync();
-
                 model.Id = user.Id;
-
                 _db.Users.Add(model);
                 await _db.SaveChangesAsync();
-
                 var claims = new List<Claim>
                 {
                     new Claim(ClaimTypes.Name, user.Username),
                     new Claim(ClaimTypes.Role, user.Role.ToString())
                 };
-
                 var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
                 await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
-
                 return Json(new { success = true, redirectUrl = returnUrl ?? Url.Action("Index") });
             }
             catch (Exception ex)
@@ -115,32 +105,27 @@ namespace ModelStore.Controllers
                 {
                     return NotFound();
                 }
-
                 var registration = await _db.Users.FirstOrDefaultAsync(r => r.Id == user.Id);
                 if (registration == null)
                 {
                     return NotFound();
                 }
-
                 var orders = await _db.Orders
                 .Include(o => o.OrderItems)
                     .ThenInclude(oi => oi.Product)
                 .Where(o => o.UserId == user.Id)
                 .OrderByDescending(o => o.OrderDate)
                 .ToListAsync();
-
                 var comments = await _db.Comments
                 .Where(c => c.UserId == user.Id)
                 .Include(c => c.Product)
                 .OrderByDescending(c => c.DatePosted)
                 .ToListAsync();
-
                 if (registration?.BirthDate != null)
                 {
                     var birthDate = registration.BirthDate;
                     var today = DateOnly.FromDateTime(DateTime.Today);
                     var age = today.Year - birthDate.Year;
-
                     if (birthDate > today.AddYears(-age))
                         age--;
 
@@ -152,7 +137,6 @@ namespace ModelStore.Controllers
                     ViewData["Age"] = "N/A";
                     ViewData["BirthDate"] = "N/A";
                 }
-
                 ViewData["Orders"] = orders;
                 ViewData["Comments"] = comments;
                 ViewData["Username"] = user.Username;
@@ -178,52 +162,43 @@ namespace ModelStore.Controllers
             {
                 return RedirectToAction("Login");
             }
-
             var user = await _db.User.FirstOrDefaultAsync(u => u.Username == User.Identity.Name);
             if (user == null)
             {
                 return NotFound();
             }
-
             var registration = await _db.Users.FirstOrDefaultAsync(r => r.Id == user.Id);
             if (registration == null)
             {
                 return NotFound();
             }
-
             bool credentialsChanged = false;
-
             registration.FirstName = model.FirstName;
             registration.LastName = model.LastName;
             registration.MiddleName = model.MiddleName;
             registration.Email = model.Email;
             registration.Phone = model.Phone;
             registration.Address = model.Address;
-
             if (!string.IsNullOrEmpty(login.Username) && login.Username != user.Username)
             {
                 if (await _db.User.AnyAsync(u => u.Username == login.Username && u.Id != user.Id))
                 {
                     return RedirectToAction("Profile");
                 }
-
                 var cartItems = await _db.CartItems.Where(c => c.UserId == user.Username).ToListAsync();
                 foreach (var item in cartItems)
                 {
                     item.UserId = login.Username;
                 }
-
                 user.Username = login.Username;
                 credentialsChanged = true;
             }
-
             if (!string.IsNullOrEmpty(Password))
             {
                 if (Password != ConfirmPassword)
                 {
                     return RedirectToAction("Profile");
                 }
-
                 if (!IsPasswordStrongOrMedium(Password))
                 {
 
@@ -232,15 +207,12 @@ namespace ModelStore.Controllers
                 user.Password = BCrypt.Net.BCrypt.HashPassword(Password);
                 credentialsChanged = true;
             }
-
             await _db.SaveChangesAsync();
-
             if (credentialsChanged)
             {
                 await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
                 return RedirectToAction("Login", new { message = "Please login with your new credentials" });
             }
-
             return RedirectToAction("Profile");
         }
 
@@ -273,7 +245,6 @@ namespace ModelStore.Controllers
                     }
                 }
             }
-
             return View();
         }
 

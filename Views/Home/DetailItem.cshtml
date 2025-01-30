@@ -4,7 +4,6 @@
 
 <div class="container mt-4">
     <div class="row">
-        <!-- Product Info Section -->
         <div class="col-md-6">
             <div class="card mb-3">
                 <div class="card-img-container">
@@ -12,29 +11,23 @@
                 </div>
             </div>
         </div>
-
         <div class="col-md-6">
             <h2>@Model.Name</h2>
             <p class="card-text">@Model.Description</p>
             <h5 id="price" class="card-title">Ціна: @Model.Price.ToString("C")</h5>
-
             <div class="quantity-selector mb-3">
                 <button type="button" class="btn btn-secondary" onmousedown="startDecrement()" onmouseup="stopDecrement()" onmouseleave="stopDecrement()">-</button>
                 <input type="num" id="quantity" name="quantity" class="form-control d-inline" value="1" min="1" style="width: 60px; display: inline-block;" oninput="validateQuantity()" />
                 <button type="button" class="btn btn-secondary" onmousedown="startIncrement()" onmouseup="stopIncrement()" onmouseleave="stopIncrement()">+</button>
             </div>
-
             <form method="post" action="@Url.Action("AddToCart", "Home")" class="add-to-cart-form">
                 <input type="hidden" name="productId" value="@Model.Id" />
                 <input type="hidden" name="quantity" value="1" class="quantity-input" />
                 <button type="submit" class="btn btn-success">Купити</button>
             </form>
-
             <div id="cart-message" class="text-success mt-2" style="display: none;">ДОДАНО У КОШИК</div>
         </div>
     </div>
-
-    <!-- Comments Section -->
     <div class="mt-5">
         <h3>Comments</h3>
         @if (User.Identity.IsAuthenticated)
@@ -52,7 +45,6 @@
         {
             <p>Please log in to leave a comment.</p>
         }
-
         @if (ViewBag.Comments != null)
         {
             <ul class="list-group mt-3">
@@ -62,7 +54,6 @@
                         <strong>@comment.Username:</strong>
                         <span class="text-muted">(@comment.DatePosted.ToString("g"))</span>
                         <p>@comment.Content</p>
-
                         @if (User.IsInRole("2"))
                         {
                             <form method="post" action="@Url.Action("DeleteComment", "Home")" style="display:inline;">
@@ -84,7 +75,7 @@
 @section Scripts {
     <script src="~/js/detailitem.js"></script>
     <script>
-                $(document).ready(function () {
+        $(document).ready(function () {
             $('.add-to-cart-form').on('submit', function (e) {
                 e.preventDefault();
                 var form = $(this);

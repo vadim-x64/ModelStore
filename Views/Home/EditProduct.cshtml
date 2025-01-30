@@ -15,7 +15,6 @@
         }
     </select>
 </div>
-
 @if (Model.Any())
 {
     <div class="d-flex justify-content-end mb-3">
@@ -23,7 +22,6 @@
             Видалити обрані продукти
         </button>
     </div>
-
     <form id="productsForm" method="post" enctype="multipart/form-data" action="@Url.Action("EditProductDetails", "Home")">
         <div class="row">
             @foreach (var product in Model)
@@ -58,7 +56,6 @@
                                     <label for="description-@product.Id" class="form-label">Опис</label>
                                     <textarea class="form-control description-input" id="description-@product.Id" name="updates[@product.Id].Description">@product.Description</textarea>
                                 </div>
-
                                 <div class="mb-3">
                                     <label for="category-@product.Id" class="form-label">Категорія</label>
                                     <select class="form-control category-input" id="category-@product.Id"
@@ -81,9 +78,7 @@
             Зберегти всі зміни
         </button>
     </form>
-
-    <form id="deleteForm" method="post" action="@Url.Action("DeleteProduct", "Home")">
-    </form>
+    <form id="deleteForm" method="post" action="@Url.Action("DeleteProduct", "Home")"></form>
 }
 
 @section Scripts {
@@ -96,30 +91,24 @@
             const deleteSelectedBtn = document.getElementById('deleteSelectedBtn');
             const productGroups = document.querySelectorAll('.product-edit-group');
             const checkboxes = document.querySelectorAll('.product-checkbox');
-
             let originalValues = new Map();
-
-            // Зберігаємо початкові значення для кожного товару
             productGroups.forEach(group => {
                 const productId = group.dataset.productId;
                 const nameInput = group.querySelector('.name-input');
                 const priceInput = group.querySelector('.price-input');
                 const categoryInput = group.querySelector('.category-input');
-                const descriptionInput = group.querySelector('.description-input'); // Додано для опису
-
+                const descriptionInput = group.querySelector('.description-input');
                 originalValues.set(productId, {
                     name: nameInput.value,
                     price: priceInput.value,
                     categoryId: categoryInput.value,
-                    description: descriptionInput.value, // Зберігаємо початкове значення опису
+                    description: descriptionInput.value,
                     hasPhotoChange: false
                 });
             });
 
-            // Функція перевірки змін
             function checkForChanges() {
                 let hasChanges = false;
-
                 productGroups.forEach(group => {
                     const productId = group.dataset.productId;
                     const original = originalValues.get(productId);
@@ -127,34 +116,27 @@
                     const photoInput = group.querySelector('.photo-input');
                     const priceInput = group.querySelector('.price-input');
                     const categoryInput = group.querySelector('.category-input');
-                    const descriptionInput = group.querySelector('.description-input'); // Оновлено для опису
-
-                    // Перевірка змін у всіх полях
+                    const descriptionInput = group.querySelector('.description-input');
                     if (nameInput.value !== original.name ||
                         priceInput.value !== original.price ||
                         categoryInput.value !== original.categoryId ||
-                        descriptionInput.value !== original.description || // Перевірка опису
+                        descriptionInput.value !== original.description ||
                         photoInput.files.length > 0) {
                         hasChanges = true;
                     }
                 });
-
-                saveAllBtn.disabled = !hasChanges; // Якщо є зміни, активуємо кнопку
+                saveAllBtn.disabled = !hasChanges;
             }
 
-            // Функція для оновлення кнопки видалення
             function updateDeleteButton() {
                 const checkedBoxes = document.querySelectorAll('.product-checkbox:checked');
                 deleteSelectedBtn.disabled = checkedBoxes.length === 0;
             }
 
-            // Обробка події на кнопці видалення вибраних товарів
             deleteSelectedBtn.addEventListener('click', function(e) {
                 e.preventDefault();
-
                 const checkedBoxes = document.querySelectorAll('.product-checkbox:checked');
                 if (checkedBoxes.length === 0) return;
-
                 if (confirm('Ви впевнені, що хочете видалити обрані продукти?')) {
                     const form = document.getElementById('deleteForm');
                     checkedBoxes.forEach(checkbox => {
@@ -168,18 +150,15 @@
                 }
             });
 
-            // Додаємо обробники подій для змін у формах
             productsForm.addEventListener('change', checkForChanges);
             productsForm.addEventListener('input', checkForChanges);
             checkboxes.forEach(checkbox => {
                 checkbox.addEventListener('change', updateDeleteButton);
             });
 
-            // Фільтрація товарів за категорією
             document.getElementById('categoryFilter').addEventListener('change', function() {
                 const selectedCategory = this.value;
                 const products = document.querySelectorAll('.product-card');
-
                 products.forEach(product => {
                     const productCategory = product.dataset.category;
                     if (selectedCategory === 'all' || productCategory === selectedCategory) {
@@ -192,8 +171,6 @@
         </script>
     }
 }
-
-
 @if (categories != null && categories.Any())
 {
     <div class="mt-5">

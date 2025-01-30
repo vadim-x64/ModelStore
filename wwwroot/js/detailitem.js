@@ -33,13 +33,10 @@ function stopDecrement() {
 function validateQuantity() {
     var quantityInput = document.getElementById('quantity');
     var value = quantityInput.value;
-
     if (isNaN(value) || value < 1) {
         quantityInput.value = 1;
     }
-
     if (value.startsWith("0")) {
         quantityInput.value = 1;
     }
 }
-

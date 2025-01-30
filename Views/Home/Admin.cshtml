@@ -4,19 +4,16 @@
 
 <div class="admin-profile-container">
     <h2 class="profile-title">Admin Profile</h2>
-
     <div class="profile-section">
         <form id="profile-pic-form" enctype="multipart/form-data" method="post" action="@Url.Action("ChangeAdminProfilePicture", "Home")">
             <input id="file-input" type="file" name="profilePicture" class="hidden-input" accept="image/*" onchange="this.form.submit();" />
         </form>
-
         <div class="profile-pic-container">
             @if (ViewData["ProfilePicture"] != null)
             {
                 <img id="profile-pic" src="data:image/png;base64,@Convert.ToBase64String((byte[])ViewData["ProfilePicture"])"
                      alt="Profile Picture" class="profile-pic" onclick="document.getElementById('file-input').click();" />
             }
-
             <form method="post" action="@Url.Action("ChangeAdminProfilePicture", "Home")" class="delete-pic-form">
                 <input type="hidden" name="deletePicture" value="true" />
                 <button type="submit" class="btn-trash" title="Delete Profile Picture">
@@ -24,7 +21,6 @@
                 </button>
             </form>
         </div>
-
         <form method="post" action="@Url.Action("EditAdminProfile", "Home")" enctype="multipart/form-data" class="profile-form">
             <div class="form-grid">
                 <div class="form-group">
@@ -64,11 +60,9 @@
                     <input type="password" name="ConfirmPassword" placeholder="Leave blank to keep current password" />
                 </div>
             </div>
-
             <button type="submit" id="saveChangesBtn" class="btn btn-success" disabled>Save Changes</button>
         </form>
     </div>
-
     <div class="navigation-buttons">
         <a href="@Url.Action("Index", "Home")" class="btn btn-secondary">Back</a>
         <a href="@Url.Action("Logout", "Home")" class="btn btn-danger">Logout</a>
@@ -76,7 +70,6 @@
         <a href="@Url.Action("Category", "Home")" class="btn btn-info">Переглянути категорії</a>
         <a href="@Url.Action("EditProduct", "Home")" class="btn btn-warning">Товари</a>
     </div>
-
     <div class="comments-section">
         <div class="comments-header" onclick="toggleComments()">
             <h3>Your Comments</h3>
@@ -120,7 +113,6 @@
 </div>
 
 <style>
-    /* Існуючі стилі */
     .profile-pic {
         width: 150px;
         height: 150px;
@@ -138,15 +130,14 @@
         cursor: pointer;
     }
 
-        .btn-trash:hover {
-            color: red;
-        }
+    .btn-trash:hover {
+        color: red;
+    }
 
     .trash-icon {
         font-size: 1.5rem;
     }
 
-    /* Нові стилі */
     .admin-profile-container {
         max-width: 1200px;
         margin: 0 auto;
@@ -187,17 +178,17 @@
         gap: 0.5rem;
     }
 
-        .form-group label {
-            font-weight: 600;
-            color: #555;
-        }
+    .form-group label {
+        font-weight: 600;
+        color: #555;
+    }
 
-        .form-group input {
-            padding: 0.75rem;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 1rem;
-        }
+    .form-group input {
+        padding: 0.75rem;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 1rem;
+    }
 
     .navigation-buttons {
         display: flex;
@@ -206,14 +197,14 @@
         margin-bottom: 2rem;
     }
 
-        .navigation-buttons .btn {
-            flex: 1;
-            min-width: 150px;
-            text-align: center;
-            padding: 0.75rem;
-            border-radius: 4px;
-            font-weight: 500;
-        }
+    .navigation-buttons .btn {
+        flex: 1;
+        min-width: 150px;
+        text-align: center;
+        padding: 0.75rem;
+        border-radius: 4px;
+        font-weight: 500;
+    }
 
     .comments-section {
         background: #fff;
@@ -231,9 +222,9 @@
         cursor: pointer;
     }
 
-        .comments-header h3 {
-            margin: 0;
-        }
+    .comments-header h3 {
+        margin: 0;
+    }
 
     .comments-content {
         padding: 0 2rem;
@@ -243,7 +234,7 @@
     }
 
     .comments-content.expanded {
-        display: block; /* Змінено: показуємо коментарі при розгортанні */
+        display: block;
     }
 
     .list-group-item {
@@ -275,16 +266,13 @@
         const newPasswordInput = document.querySelector("input[name='Password']");
         const confirmPasswordInput = document.querySelector("input[name='ConfirmPassword']");
         const chevronIcon = document.querySelector('.comments-header i');
-
         chevronIcon.style.transform = 'rotate(180deg)';
-
         const initialValues = inputs.reduce((acc, input) => {
             acc[input.name] = input.value;
             return acc;
         }, {});
 
         confirmPasswordInput.disabled = true;
-
         newPasswordInput.addEventListener("input", function () {
             confirmPasswordInput.disabled = !newPasswordInput.value;
         });
